@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
+  m_Name: Viola
+  m_EditorClassIdentifier: 
+  name: Viola
+  sortOrder: 2
+  type: 0
+  loadDirName: Audio/Viola
+  noteFileNames:
+  - viola_o3_v100_0
+  - viola_o3_v100_1
+  - viola_o3_v100_2
+  - viola_o3_v100_3
+  - viola_o3_v100_4
+  - viola_o3_v100_5
+  - viola_o3_v100_6
+  - viola_o3_v100_7
+  - viola_o3_v100_8
+  - viola_o3_v100_9
+  - viola_o3_v100_10
+  - viola_o3_v100_11
+  - viola_o4_v100_0
+  - viola_o4_v100_1
+  - viola_o4_v100_2
+  - viola_o4_v100_3
+  - viola_o4_v100_4
+  - viola_o4_v100_5
+  - viola_o4_v100_6
+  - viola_o4_v100_7
+  - viola_o4_v100_8
+  - viola_o4_v100_9
+  - viola_o4_v100_10
+  - viola_o4_v100_11
+  - viola_o5_v100_0
+  octaves: 0300000004000000
+  defaultColor: {r: 0.5622632, g: 0.7529412, b: 0.45882353, a: 1}
+  highOctave: 1
+  rootNoteOnly: 0
+  defaultVolume: 0.33
+  defaultPan: 0.5
+  bpm: 120
+  beats: 12
+  sampleRate: 48000
+  beatLoopStart: 3
+  beatLoopEnd: 9

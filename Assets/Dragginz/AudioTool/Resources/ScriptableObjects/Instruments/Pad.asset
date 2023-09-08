@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
+  m_Name: Pad
+  m_EditorClassIdentifier: 
+  name: Pad
+  sortOrder: 0
+  type: 0
+  loadDirName: Audio/Pad
+  noteFileNames:
+  - pad_o1_v100_0
+  - pad_o1_v100_1
+  - pad_o1_v100_2
+  - pad_o1_v100_3
+  - pad_o1_v100_4
+  - pad_o1_v100_5
+  - pad_o1_v100_6
+  - pad_o1_v100_7
+  - pad_o1_v100_8
+  - pad_o1_v100_9
+  - pad_o1_v100_10
+  - pad_o1_v100_11
+  - pad_o2_v100_0
+  - pad_o2_v100_1
+  - pad_o2_v100_2
+  - pad_o2_v100_3
+  - pad_o2_v100_4
+  - pad_o2_v100_5
+  - pad_o2_v100_6
+  - pad_o2_v100_7
+  - pad_o2_v100_8
+  - pad_o2_v100_9
+  - pad_o2_v100_10
+  - pad_o2_v100_11
+  - pad_o3_v100_0
+  octaves: 0100000002000000
+  defaultColor: {r: 0.46925062, g: 0.7774157, b: 0.8962264, a: 1}
+  highOctave: 0
+  rootNoteOnly: 1
+  defaultVolume: 0.75
+  defaultPan: 0.5
+  bpm: 120
+  beats: 12
+  sampleRate: 48000
+  beatLoopStart: 3
+  beatLoopEnd: 9
