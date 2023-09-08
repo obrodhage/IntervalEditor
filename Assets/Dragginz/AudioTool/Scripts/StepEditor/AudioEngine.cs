@@ -131,20 +131,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             foreach (var track in Tracks)
             {
                 track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
-                
-                /*if (track.donePlaying) continue;
-
-                var curRegion = track.GetCurrentRegion();
-                if (curRegion == null) continue;
-                
-                if (_curDspTime >= _startDspTime + curRegion.regionEndTime)
-                {
-                    track.StartNextRegionPlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
-                }
-                else
-                {
-                    track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
-                }*/
             }
         }
         
@@ -261,6 +247,40 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         }
                         break;
                     }
+                }
+            }
+        }
+
+        public void UpdateRegionLength(Region updateRegion, int length)
+        {
+            foreach (var t in Tracks)
+            {
+                if (t.Position != updateRegion.trackPos) continue;
+
+                var updateOtherRegions = false;
+                var regionPos = 0;
+                
+                foreach (var r in t.Regions)
+                {
+                    if (updateOtherRegions)
+                    {
+                        r.UpdateStartPos(regionPos, BeatsPerSec);
+                        r.CreatePianoRoll(_intervals, _patterns);
+                        _editorController.UpdateRegionGameObjectPosAndSize(r);
+                        
+                        regionPos = r.startPosBeats + r.beats;
+                        continue;
+                    }
+                    
+                    if (r.startPosBeats != updateRegion.startPosBeats) continue;
+                    
+                    //" 4 Beats", " 8 Beats", "12 Beats", "16 Beats", "20 Beats", "24 Beats"
+                    r.UpdateLength((length + 1) * 4, BeatsPerSec); // not the best solution
+                    r.CreatePianoRoll(_intervals, _patterns);
+                    _editorController.UpdateRegionGameObjectPosAndSize(r);
+                    
+                    regionPos = r.startPosBeats + r.beats;
+                    updateOtherRegions = true;
                 }
             }
         }

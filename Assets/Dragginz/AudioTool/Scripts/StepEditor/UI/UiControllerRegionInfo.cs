@@ -39,6 +39,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         // Delegates
         
+        public delegate void DropDownLengthEvent(int key);
+        public event DropDownLengthEvent OnDropDownLengthEvent;
+        
         public delegate void DropDownKeyEvent(int key);
         public event DropDownKeyEvent OnDropDownKeyEvent;
     
@@ -99,6 +102,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             
             buttonClose.onClick.AddListener(Hide);
             
+            dropDownLength.onValueChanged.AddListener(delegate { OnDropDownLengthChanged(); });
             dropDownKeys.onValueChanged.AddListener(delegate { OnDropDownKeyChanged(); });
             dropDownIntervals.onValueChanged.AddListener(delegate { OnDropDownIntervalChanged(); });
             dropDownOctaves.onValueChanged.AddListener(delegate { OnDropDownOctaveChanged(); });
@@ -186,19 +190,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             goRegionPanel.SetActive(true);
 
             var settings = region.playbackSettings;
-            
-            var header = "Track "+ (region.trackPos+1) + " - " + region.instrumentName + " - Beat " + region.startPosBeats + "-" + (region.startPosBeats + region.beats - 1);
-            labelInstrument.text = header;
 
-            /*
-            " 4 Beats",
-            " 8 Beats",
-            "12 Beats",
-            "16 Beats",
-            "20 Beats",
-            "24 Beats"
-            */
-            //dropDownLength.value = region.beats;
+            ShowRegionInfoHeader(region);
+            
+            //" 4 Beats", " 8 Beats", "12 Beats", "16 Beats", "20 Beats", "24 Beats"
+            dropDownLength.value = (region.beats / 4) - 1; // not the best solution
             
             dropDownKeys.value = settings.Key;
             dropDownIntervals.value = settings.Interval;
@@ -235,6 +231,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             _uiIsUpdating = false;
         }
 
+        public void ShowRegionInfoHeader(Region region)
+        {
+            var header = "Track "+ (region.trackPos+1) + " - " + region.instrumentName + " - Beat " + region.startPosBeats + "-" + (region.startPosBeats + region.beats - 1);
+            labelInstrument.text = header;
+        }
+        
         public void updateGroupVisibility(Globals.InstrumentSettings settings)
         {
             groupArpeggiator.SetActive(settings.Type == Globals.RegionTypeArpeggiator);
@@ -258,6 +260,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             OnButtonDeleteEvent?.Invoke();
         }
 
+        private void OnDropDownLengthChanged() {
+            if (!_uiIsUpdating) OnDropDownLengthEvent?.Invoke(dropDownLength.value);
+        }
+        
         private void OnDropDownKeyChanged() {
             if (!_uiIsUpdating) OnDropDownKeyEvent?.Invoke(dropDownKeys.value);
         }

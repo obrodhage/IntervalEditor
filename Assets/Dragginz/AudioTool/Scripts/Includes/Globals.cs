@@ -5,6 +5,8 @@ namespace Dragginz.AudioTool.Scripts.Includes
 {
     public static class Globals
     {
+        public const string Version = "v0.9.8.23";
+        
         public const uint TrackInfo = 0;
         public const uint TrackMute = 1;
         public const uint TrackDelete = 2;

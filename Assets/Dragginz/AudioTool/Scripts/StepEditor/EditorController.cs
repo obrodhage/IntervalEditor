@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
 using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using Dragginz.AudioTool.Scripts.StepEditor.UI;
+using TMPro;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor
 {
     public class EditorController : MonoBehaviour
     {
+        [SerializeField] private TMP_Text textVersion;
         [SerializeField] private GameObject prefabTrackInfo;
         [SerializeField] private GameObject prefabBarHeader;
         [SerializeField] private GameObject prefabRegion;
@@ -34,6 +35,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         private void Awake()
         {
+            textVersion.text = Globals.Version;
+            
             _uiControllerEditor = FindObjectOfType<UiControllerEditor>();
             if (_uiControllerEditor == null) {
                 Debug.LogError("Couldn't find Component UiControllerEditor!");
@@ -95,6 +98,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             uiControllerTrackInfo.OnButtonMoveDownEvent += TrackMoveDownEvent;
             uiControllerTrackInfo.OnButtonDeleteEvent += TrackInfoDeleteEvent;
             
+            uiControllerRegionInfo.OnDropDownLengthEvent += RegionInfoLengthChange;
             uiControllerRegionInfo.OnDropDownKeyEvent += RegionInfoKeyChange;
             uiControllerRegionInfo.OnDropDownIntervalEvent += RegionInfoIntervalChange;
             uiControllerRegionInfo.OnDropDownOctaveEvent += RegionInfoOctaveChange;
@@ -201,6 +205,24 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             pos.y = track.Position * Globals.PrefabTrackHeight * -1;
             uiRegion.rectTransform.anchoredPosition = pos;
         }
+
+        public void UpdateRegionGameObjectPosAndSize(Region regionUpdate)
+        {
+            var uiRegion = regionUpdate.RegionUi;
+            if (uiRegion == null) return;
+            
+            var pos = uiRegion.rectTransform.anchoredPosition;
+            
+            var prefabBarWidth = Globals.PrefabBarWidth / 4;
+            var w = prefabBarWidth * regionUpdate.beats;
+            
+            var size = uiRegion.rectTransform.sizeDelta;
+            size.x = w;
+            uiRegion.rectTransform.sizeDelta = size;
+
+            pos.x = prefabBarWidth * regionUpdate.startPosBeats;
+            uiRegion.rectTransform.anchoredPosition = pos;
+        }
         
         // UI EVENTS
 
@@ -287,6 +309,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         //
         
+        private void RegionInfoLengthChange(int length)
+        {
+            if (_curRegionEdit == null) return;
+            
+            _audioEngine.UpdateRegionLength(_curRegionEdit, length);
+            uiControllerRegionInfo.ShowRegionInfoHeader(_curRegionEdit); // refresh
+        }
+
         private void RegionInfoKeyChange(int key)
         {
             if (_curRegionEdit == null) return;

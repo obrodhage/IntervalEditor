@@ -55,6 +55,20 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             playbackSettings.Note = n;
         }
 
+        public void UpdateLength(int length, float beatsPerSec)
+        {
+            beats = length;
+            regionStartTime = startPosBeats / beatsPerSec;
+            regionEndTime = regionStartTime + (beats / beatsPerSec);
+        }
+
+        public void UpdateStartPos(int pos, float beatsPerSec)
+        {
+            startPosBeats = pos;
+            regionStartTime = startPosBeats / beatsPerSec;
+            regionEndTime = regionStartTime + (beats / beatsPerSec);
+        }
+        
         public void CreatePianoRoll(List<List<int>> intervals, List<List<Vector2>> patterns)
         {
             PianoRoll?.Clear();
