@@ -130,5 +130,13 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public float PosTime;
             public List<Note> Notes;
         }
+        
+        public struct MouseRegionBeatPos
+        {
+            public int trackPos;
+            public int regionStartPos;
+            public int numBeats;
+            public bool posIsValid;
+        }
     }
 }

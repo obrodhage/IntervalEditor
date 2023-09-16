@@ -28,6 +28,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             
             labelKey.text = txtKey;
             labelChord.text = txtChord;
+            labelChord.enabled = width >= 140;
             
             imageMuted.enabled = false;
         }

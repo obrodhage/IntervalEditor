@@ -84,7 +84,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         // Getters
 
-        public bool IsVisible => isActiveAndEnabled;
+        public bool IsVisible => goRegionPanel.activeSelf;
         
         // System methods
 

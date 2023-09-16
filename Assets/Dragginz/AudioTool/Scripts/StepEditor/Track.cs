@@ -132,18 +132,77 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             Regions = Regions.OrderBy(x => x.startPosBeats).ToList();
         }
 
-        /*public void SetRegionsStartTime(float beatsPerSec)
+        public Globals.MouseRegionBeatPos ValidateRegionPosAndSize(Globals.MouseRegionBeatPos regionBeatPos)
         {
-            foreach (var region in regions)
-            {
-                region.eventTime = region.startPosBeats / beatsPerSec;
-            }
-        }*/
+            var numRegions = Regions.Count;
+            var exitChecks = false;
 
-        /*public Region GetCurrentRegion()
-        {
-            return curRegionIndex >= regions.Count ? null : regions[curRegionIndex];
-        }*/
+            if (regionBeatPos.regionStartPos < 0) regionBeatPos.regionStartPos = 0;
+            
+            // check if region is within other region
+            for (var i = 0; i < numRegions; ++i)
+            {
+                var r = Regions[i];
+                if (regionBeatPos.regionStartPos >= r.startPosBeats) {
+                    if (regionBeatPos.regionStartPos + regionBeatPos.numBeats <= r.startPosBeats + r.beats) {
+                        regionBeatPos.posIsValid = false;
+                        //Debug.LogError("regionMarker within other region!");
+                        exitChecks = true;
+                        break;
+                    }
+                }
+            }
+
+            if (exitChecks) return regionBeatPos;
+            
+            // check if start of region is overlapping other region
+            for (var i = 0; i < numRegions; ++i)
+            {
+                var r = Regions[i];
+                if (regionBeatPos.regionStartPos >= r.startPosBeats) {
+                    if (regionBeatPos.regionStartPos <= r.startPosBeats + r.beats)
+                    {
+                        //Debug.LogWarning("overlap: "+regionBeatPos.regionStartPos+" :: "+r.startPosBeats+", "+(r.startPosBeats+r.beats));
+                        
+                        regionBeatPos.regionStartPos = r.startPosBeats + r.beats;
+
+                        // not the last region?
+                        if (i < (numRegions - 1))
+                        {
+                            var rNext = Regions[i+1];
+                            if (regionBeatPos.regionStartPos + regionBeatPos.numBeats >= rNext.startPosBeats) {
+                                regionBeatPos.numBeats = rNext.startPosBeats - regionBeatPos.regionStartPos;
+                            }
+                        }
+                        
+                        exitChecks = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (exitChecks) return regionBeatPos;
+            
+            // check if end of region is overlapping other region
+            for (var i = 0; i < numRegions; ++i)
+            {
+                var r = Regions[i];
+                if (regionBeatPos.regionStartPos + regionBeatPos.numBeats >= r.startPosBeats) {
+                    if (regionBeatPos.regionStartPos + regionBeatPos.numBeats <= r.startPosBeats + r.beats)
+                    {
+                        regionBeatPos.regionStartPos = r.startPosBeats - regionBeatPos.numBeats;
+                        if (regionBeatPos.regionStartPos < 0) {
+                            regionBeatPos.regionStartPos = 0;
+                        }
+
+                        regionBeatPos.numBeats = r.startPosBeats - regionBeatPos.regionStartPos;
+                        break;
+                    }
+                }
+            }
+            
+            return regionBeatPos;
+        }
 
         public void PrepareForPlayback()
         {
@@ -158,7 +217,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
             
             donePlaying = false;
-           curRegionIndex = 0;
+            curRegionIndex = 0;
         }
         
         /*public void StartPlayback(double startDspTime, double curDspTime, int numInstrumentsSoloed)

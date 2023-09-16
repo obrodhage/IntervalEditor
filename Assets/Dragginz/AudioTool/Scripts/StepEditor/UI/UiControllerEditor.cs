@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using Dragginz.AudioTool.Scripts.Includes;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,7 +32,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void ButtonAddTrackEvent();
         public event ButtonAddTrackEvent OnButtonAddTrackEvent;
         
-        public delegate void ActionAddRegionEvent(int trackPos, int regionPos);
+        public delegate void ActionAddRegionEvent();
         public event ActionAddRegionEvent OnActionAddRegionEvent;
 
         public delegate void ButtonPlayEvent();
@@ -103,25 +104,38 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             anchoredPosition.x = rectTransformBarsContent.anchoredPosition.x;
             rectTransformRegionsContent.anchoredPosition = anchoredPosition;
         }
+
+        // Public Methods
         
         public void AudioIsPlaying(bool startPlayback)
         {
             buttonPlay.interactable = !startPlayback;
             buttonStop.interactable = !buttonPlay.interactable;
         }
-        
-        public void OnButtonRegionsClick()
+
+        public Globals.MouseRegionBeatPos GetRegionBeatPos()
         {
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransformRegions, Input.mousePosition, null, out var localPos);
+            var pos = new Globals.MouseRegionBeatPos();
+            var mousePos = Input.mousePosition;
+            
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransformRegions, mousePos, null, out var localPos);
             var rect = rectTransformRegions.rect;
             localPos.x += rect.width / 2;
             localPos.y = Math.Abs(localPos.y - rect.height / 2);
-            //Debug.Log("localPos: "+localPos);
-
-            var trackPos = (int)(localPos.y / Globals.PrefabTrackHeight);
-            var regionPos = (int)(localPos.x / (Globals.PrefabBarBeatWidth * 8));
             
-            OnActionAddRegionEvent?.Invoke(trackPos, regionPos);
+            pos.trackPos = (int)(localPos.y / Globals.PrefabTrackHeight);
+            pos.regionStartPos = (int)(localPos.x / Globals.PrefabBarBeatWidth - Globals.DefaultRegionBeats / 2);
+            pos.numBeats = Globals.DefaultRegionBeats;
+            pos.posIsValid = true;
+            
+            return pos;
+        }
+        
+        public void OnButtonRegionsClick()
+        {
+            //var regionBeatPos = GetRegionBeatPos();
+            
+            OnActionAddRegionEvent?.Invoke();
         }
     }
 }

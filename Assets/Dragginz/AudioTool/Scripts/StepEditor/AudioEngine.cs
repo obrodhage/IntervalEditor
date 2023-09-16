@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Dragginz.AudioTool.Scripts.Includes;
@@ -23,9 +22,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private float _curBpm;
 
         public float curBeat;
-        
-        private bool _isPlaying;
-    
+
         private bool _isUpdatingInstrumentInfo;
 
         private double _startDspTime;
@@ -36,6 +33,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private float BeatsPerSec { get; set; }
 
         public List<Track> Tracks { get; private set; }
+
+        public bool IsPlaying { get; private set; }
 
         private void Awake()
         {
@@ -121,7 +120,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         // check for loop events
         void Update()
         {
-            if (!_isPlaying) return;
+            if (!IsPlaying) return;
         
             _curDspTime = AudioSettings.dspTime;
 
@@ -136,9 +135,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         public bool StartPlayback()
         {
-            if (_isPlaying) return false;
+            if (IsPlaying) return false;
 
-            _isPlaying = true;
+            IsPlaying = true;
         
             _curDspTime = _startDspTime = AudioSettings.dspTime;
             foreach (var track in Tracks)
@@ -152,9 +151,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         public void StopPlayback()
         {
-            if (!_isPlaying) return;
+            if (!IsPlaying) return;
 
-            _isPlaying = false;
+            IsPlaying = false;
         
             foreach (var track in Tracks)
             {
@@ -264,10 +263,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 {
                     if (updateOtherRegions)
                     {
-                        r.UpdateStartPos(regionPos, BeatsPerSec);
-                        r.CreatePianoRoll(_intervals, _patterns);
-                        _editorController.UpdateRegionGameObjectPosAndSize(r);
-                        
+                        if (r.startPosBeats < regionPos)
+                        {
+                            r.UpdateStartPos(regionPos, BeatsPerSec);
+                            r.CreatePianoRoll(_intervals, _patterns);
+                            _editorController.UpdateRegionGameObjectPosAndSize(r);
+                        }
+
                         regionPos = r.startPosBeats + r.beats;
                         continue;
                     }
@@ -303,16 +305,30 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 }
             }
         }
+
+        public Globals.MouseRegionBeatPos ValidateRegionPosAndSize(Track track, Globals.MouseRegionBeatPos regionBeatPos)
+        {
+            foreach (var t in Tracks)
+            {
+                if (t.Position == track.Position)
+                {
+                    regionBeatPos = t.ValidateRegionPosAndSize(regionBeatPos);
+                    break;
+                };
+            }
+
+            return regionBeatPos;
+        }
         
-        public Region CreateNewRegion(Track track, int regionPos)
+        public Region CreateNewRegion(Track track, Globals.MouseRegionBeatPos regionBeatPos)
         {
             Region region = null;
             foreach (var t in Tracks)
             {
                 if (t.Position != track.Position) continue;
-                
+
                 region = new Region();
-                region.Init(regionPos * Globals.DefaultRegionBeats, 8, t, BeatsPerSec);
+                region.Init(regionBeatPos.regionStartPos, regionBeatPos.numBeats, t, BeatsPerSec);
                 region.CreatePianoRoll(_intervals, _patterns);
                 
                 t.AddRegion(region);

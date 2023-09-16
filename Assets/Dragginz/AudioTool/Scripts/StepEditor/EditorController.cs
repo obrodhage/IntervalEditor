@@ -5,6 +5,7 @@ using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using Dragginz.AudioTool.Scripts.StepEditor.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor
 {
@@ -15,7 +16,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         [SerializeField] private GameObject prefabBarHeader;
         [SerializeField] private GameObject prefabRegion;
         [SerializeField] private GameObject posMarker;
-
+        [SerializeField] private RectTransform regionMarker;
+        [SerializeField] private GameObject viewportRegions;
+        
         private UiControllerEditor _uiControllerEditor;
         private UiControllerTrackInfo uiControllerTrackInfo;
         private UiControllerRegionInfo uiControllerRegionInfo;
@@ -30,6 +33,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private Vector2 _posMarkerPos;
         private const float PosMarkerStartX = 150.0f;
 
+        private float _timer;
+        private float _lastRegionMarkerUpdate;
+        private Globals.MouseRegionBeatPos _mouseRegionBeatPos;
+        
         private Track _curTrackEdit;
         private Region _curRegionEdit;
         
@@ -63,6 +70,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         private void Start()
         {
+            _mouseRegionBeatPos = new Globals.MouseRegionBeatPos();
+                
             LoadIntervalsFromScriptableObjects();
             LoadInstrumentsFromScriptableObjects();
             LoadPatternsFromScriptableObjects();
@@ -116,9 +125,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void Update()
         {
-            _posMarkerPos.x = PosMarkerStartX + _audioEngine.curBeat * Globals.PrefabBarBeatWidth;
-            _rectTransformPosMarker.anchoredPosition = _posMarkerPos;
+            _timer = Time.realtimeSinceStartup;
             
+            if (_audioEngine.IsPlaying)
+            {
+                _posMarkerPos.x = PosMarkerStartX + _audioEngine.curBeat * Globals.PrefabBarBeatWidth;
+                _rectTransformPosMarker.anchoredPosition = _posMarkerPos;
+            }
+
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 if (uiControllerTrackInfo.IsVisible) uiControllerTrackInfo.Hide();
@@ -130,6 +144,75 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (!playing) _audioEngine.StopPlayback();
                 _uiControllerEditor.AudioIsPlaying(playing);
             }
+
+            if (uiControllerTrackInfo.IsVisible || uiControllerRegionInfo.IsVisible)
+            {
+                if (regionMarker.gameObject.activeSelf) regionMarker.gameObject.SetActive(false);
+                return;
+            }
+            
+            if (_lastRegionMarkerUpdate < _timer)
+            {
+                _lastRegionMarkerUpdate = _timer + 0.1f;
+
+                var hideMarker = true;
+                
+                // Check if the mouse is over the regions viewport
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    var pointerEventData = new PointerEventData(EventSystem.current) {
+                        position = Input.mousePosition
+                    };
+
+                    var raycastResults = new List<RaycastResult>();
+                    EventSystem.current.RaycastAll(pointerEventData, raycastResults);
+
+                    if (raycastResults.Count > 0)
+                    {
+                        if (raycastResults[0].gameObject == viewportRegions)
+                        {
+                            UpdateRegionMarker();
+                            hideMarker = false;
+                        }
+                    }
+                }
+                
+                if (hideMarker && regionMarker.gameObject.activeSelf) regionMarker.gameObject.SetActive(false);
+            }
+        }
+
+        private void UpdateRegionMarker()
+        {
+            _mouseRegionBeatPos = _uiControllerEditor.GetRegionBeatPos();
+
+            if (_mouseRegionBeatPos.trackPos < 0) _mouseRegionBeatPos.trackPos = 0;
+            
+            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.trackPos);
+            if (track == null) {
+                regionMarker.gameObject.SetActive(false);
+                return;
+            }
+                
+            _mouseRegionBeatPos = _audioEngine.ValidateRegionPosAndSize(track, _mouseRegionBeatPos);
+
+            if (!_mouseRegionBeatPos.posIsValid) {
+                regionMarker.gameObject.SetActive(false);
+                return;
+            }
+                
+            var size = new Vector2Int {
+                x = Globals.PrefabBarBeatWidth * _mouseRegionBeatPos.numBeats,
+                y = Globals.PrefabTrackHeight
+            };
+            regionMarker.sizeDelta = size;
+                
+            var pos = new Vector2Int {
+                x = _mouseRegionBeatPos.regionStartPos * Globals.PrefabBarBeatWidth,
+                y = _mouseRegionBeatPos.trackPos * Globals.PrefabTrackHeight * -1
+            };
+            regionMarker.anchoredPosition = pos;
+                
+            if (!regionMarker.gameObject.activeSelf) regionMarker.gameObject.SetActive(true);
         }
         
         private void LoadIntervalsFromScriptableObjects()
@@ -248,17 +331,18 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _audioEngine.AddTrack(track);
         }
 
-        private void OnActionAddRegion(int trackPos, int regionPos)
+        private void OnActionAddRegion()
         {
             //Debug.Log("trackPos, regionPos: "+trackPos+", "+regionPos);
             //_audioEngine.AddRegion(trackPos, regionPos);
-            var track = _audioEngine.GetTrack(trackPos);
+            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.trackPos);
             if (track == null) return;
             
-            var newRegion = _audioEngine.CreateNewRegion(track, regionPos);
-            if (newRegion != null)
+            _curRegionEdit = _audioEngine.CreateNewRegion(track, _mouseRegionBeatPos);
+            if (_curRegionEdit != null)
             {
-                CreateRegionGameObject(track, newRegion, track.Instrument);
+                CreateRegionGameObject(track, _curRegionEdit, track.Instrument);
+                uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
             }
         }
         
