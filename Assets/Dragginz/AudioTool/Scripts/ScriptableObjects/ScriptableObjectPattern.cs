@@ -1,16 +1,51 @@
-using Dragginz.AudioTool.Scripts.Includes;
 using UnityEngine;
 
 namespace Dragginz.AudioTool.Scripts.ScriptableObjects
 {
+    public enum PatternOctaves
+    {
+        One,
+        Two,
+        Three
+    }
+
+    public enum PatternStart
+    {
+        Beginning,
+        End
+    }
+    
+    public enum PatternEnd
+    {
+        Reverse,
+        Reset
+    }
+    
+    public enum PatternStartDirection
+    {
+        Forward,
+        Back
+    }
+    
+    public enum PatternType
+    {
+        SimpleArpeggio,
+        ThreeNoteSteps,
+        RootClimb
+    }
+    
     [CreateAssetMenu(fileName = "Pattern", menuName = "ScriptableObjects/Pattern", order = 3)]
     public class ScriptableObjectPattern : ScriptableObject
     {
         public uint sortOrder;
         
         public new string name;
-
-        public Vector2[] patternIntervals;
+        
+        public PatternOctaves octaves;
+        public PatternStart start;
+        public PatternStartDirection startDirection;
+        public PatternEnd end;
+        public PatternType type;
     }
 }
 

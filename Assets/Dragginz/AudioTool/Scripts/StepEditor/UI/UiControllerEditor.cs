@@ -121,6 +121,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransformRegions, mousePos, null, out var localPos);
             var rect = rectTransformRegions.rect;
             localPos.x += rect.width / 2;
+            localPos.x -= rectTransformRegionsContent.anchoredPosition.x; // add content offset
             localPos.y = Math.Abs(localPos.y - rect.height / 2);
             
             pos.trackPos = (int)(localPos.y / Globals.PrefabTrackHeight);

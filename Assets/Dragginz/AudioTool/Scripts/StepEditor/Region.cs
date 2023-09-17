@@ -69,21 +69,25 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             regionEndTime = regionStartTime + (beats / beatsPerSec);
         }
         
-        public void CreatePianoRoll(List<List<int>> intervals, List<List<Vector2>> patterns)
+        public void CreatePianoRoll(List<List<int>> intervals, List<ScriptableObjectPattern> soPatterns)
         {
             PianoRoll?.Clear();
-
-            if (playbackSettings.Type == RegionTypeChord)
+            
+            if (playbackSettings.Type == RegionTypeArpeggiator)
+            {
+                PianoRoll = CreateArpPianoRoll(intervals, soPatterns[playbackSettings.Pattern]);
+            }
+            else
             {
                 PianoRoll = CreateChordPianoRoll(intervals);
             }
-            else if (playbackSettings.Type == RegionTypeArpeggiator)
-            {
-                PianoRoll = CreateArpeggiatorPianoRoll(intervals, patterns);
-            }
         }
 
-        private List<PianoRoll> CreateChordPianoRoll(List<List<int>> intervals)
+        //
+        // Chord
+        //
+        
+        private List<PianoRoll> CreateChordPianoRoll(IReadOnlyList<List<int>> intervals)
         {
             var pianoRoll = new List<PianoRoll>();
 
@@ -95,6 +99,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             var listInterval = intervals[playbackSettings.Interval];
             var numIntervalNotes = listInterval.Count;
             
+            var intervalStartIndex = (playbackSettings.Octave * 12) + playbackSettings.Key;
+            
             // play chord until region has reached end
             while (curPosTime < regionEndTime)
             {
@@ -104,10 +110,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     
                     var n = new Note
                     {
-                        //       root octave                     Key                    interval index
-                        Index = (playbackSettings.Octave * 12) + playbackSettings.Key + listInterval[i]
+                        Index = intervalStartIndex + listInterval[i]
                     };
-                    //Debug.Log("index: "+n.index);
                     var p = new PianoRoll
                     {
                         PosTime = curPosTime,
@@ -126,45 +130,195 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             return pianoRoll;
         }
 
-        private List<PianoRoll> CreateArpeggiatorPianoRoll(List<List<int>> intervals, List<List<Vector2>> patterns)
+        //
+        // Arpeggiator
+        //
+        
+        private List<PianoRoll> CreateArpPianoRoll(IReadOnlyList<List<int>> intervals, ScriptableObjectPattern pattern)
         {
             var pianoRoll = new List<PianoRoll>();
 
-            var noteInterval = 60f / 120.0f * 4f / ArpeggiatorNotesPerBar[playbackSettings.Note];
+            var noteInterval = 60f / 120.0f * 4f / ArpeggiatorNotesPerBar[playbackSettings.Note]; // ArpeggiatorNotesPerBar is set in Globals
+            
+            var intervalStartIndex = (playbackSettings.Octave * 12) + playbackSettings.Key;
+
+            var listIntervals = intervals[playbackSettings.Interval];
+            var numIntervals = listIntervals.Count;
+
+            // create list of all interval notes
+            var listPattern = new List<int>();
+            var numOctaves = (int)pattern.octaves + 1;
+            for (var octave = 0; octave < numOctaves; ++octave)
+            {
+                for (var i = 0; i < numIntervals; ++i)
+                {
+                    var index = intervalStartIndex + (octave * 12) + listIntervals[i];
+                    
+                    if (i == 0 && octave > 0) {
+                        if (index == listPattern[^1]) continue; // avoid double notes when octave changes
+                    }
+                    
+                    listPattern.Add(index);
+                }
+            }
+            
+            Debug.Log("Track "+trackPos+", region "+startPosBeats+$" -> arpeggiator pattern: {string.Join(",", listPattern.ToArray())}");
+
+            return pattern.type switch
+            {
+                PatternType.SimpleArpeggio => CreateArpSimple(pattern, noteInterval, listPattern),
+                PatternType.ThreeNoteSteps => CreateArpThreeNoteSteps(pattern, noteInterval, listPattern),
+                PatternType.RootClimb => pianoRoll,
+                _ => pianoRoll
+            };
+        }
+        
+        private List<PianoRoll> CreateArpSimple(ScriptableObjectPattern pattern, float noteInterval, IReadOnlyList<int> listPattern)
+        {
+            var pianoRoll = new List<PianoRoll>();
+
             var curPosTime = regionStartTime;
-            
-            var listInterval = intervals[playbackSettings.Interval];
-            var listPattern = patterns[playbackSettings.Pattern];
-            
             var numPatternNotes = listPattern.Count;
+
+            var patternDirection = pattern.startDirection == PatternStartDirection.Forward ? 1 : -1;
+            var patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+
+            var sPattern = "";
             
             // play pattern until region has reached end
             while (curPosTime < regionEndTime)
             {
-                for (var i = 0; i < numPatternNotes; ++i)
+                var n = new Note {
+                    Index = listPattern[patternIndex]
+                };
+                var p = new PianoRoll {
+                    PosTime = curPosTime,
+                    Notes = new List<Note> {n}
+                };
+                pianoRoll.Add(p);
+
+                sPattern += patternIndex + ",";
+                
+                curPosTime += noteInterval;
+                if (curPosTime >= regionEndTime) break;
+                
+                patternIndex += patternDirection;
+                if (patternIndex < 0)
                 {
-                    var n = new Note
-                    {
-                        //       root octave                     Key                                       interval index             octave index
-                        Index = (playbackSettings.Octave * 12) + playbackSettings.Key + listInterval[(int) listPattern[i].y] + ((int) listPattern[i].x * 12)
-                    };
-                    //Debug.Log("index: "+n.index);
-                    var p = new PianoRoll
-                    {
-                        PosTime = curPosTime,
-                        Notes = new List<Note> {n}
-                    };
-                    pianoRoll.Add(p);
-
-                    curPosTime += noteInterval;
-
-                    if (curPosTime >= regionEndTime) break;
+                    if (pattern.end == PatternEnd.Reset) {
+                        patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+                    }
+                    else if (pattern.end == PatternEnd.Reverse) {
+                        patternIndex = 1;
+                        patternDirection *= -1;
+                    }
+                }
+                else if (patternIndex >= numPatternNotes)
+                {
+                    if (pattern.end == PatternEnd.Reset) {
+                        patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+                    }
+                    else if (pattern.end == PatternEnd.Reverse) {
+                        patternIndex = numPatternNotes - 2;
+                        patternDirection *= -1;
+                    }
                 }
             }
             
+            //var s = "";
+            //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
+            //Debug.Log("simple arp: "+s);
+            
+            //Debug.Log("simple arp: "+sPattern);
+            
             return pianoRoll;
         }
+        
+        private List<PianoRoll> CreateArpThreeNoteSteps(ScriptableObjectPattern pattern, float noteInterval, IReadOnlyList<int> listPattern)
+        {
+            var pianoRoll = new List<PianoRoll>();
 
+            var curPosTime = regionStartTime;
+            var numPatternNotes = listPattern.Count;
+
+            var patternDirection = pattern.startDirection == PatternStartDirection.Forward ? 1 : -1;
+            var patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+            var noteCount = 0;
+            
+            // play pattern until region has reached end
+            while (curPosTime < regionEndTime)
+            {
+                var n = new Note {
+                    Index = listPattern[patternIndex]
+                };
+                var p = new PianoRoll {
+                    PosTime = curPosTime,
+                    Notes = new List<Note> {n}
+                };
+                pianoRoll.Add(p);
+
+                curPosTime += noteInterval;
+                if (curPosTime >= regionEndTime) break;
+
+                noteCount++;
+                if (noteCount == 3)
+                {
+                    if (patternDirection < 0)
+                    {
+                        if (patternIndex == 0)
+                        {
+                            if (pattern.end == PatternEnd.Reset) {
+                                noteCount = 0;
+                                patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+                            }
+                            else if (pattern.end == PatternEnd.Reverse) {
+                                noteCount = 1;
+                                patternIndex = 1;
+                                patternDirection *= -1;
+                            }
+                        } 
+                        else
+                        {
+                            noteCount = 0;
+                            patternIndex -= patternDirection;
+                        }
+                    } 
+                    else 
+                    {
+                        if (patternIndex == (numPatternNotes - 1))
+                        {
+                            if (pattern.end == PatternEnd.Reset) {
+                                noteCount = 0;
+                                patternIndex = pattern.start == PatternStart.Beginning ? 0 : numPatternNotes - 1;
+                            }
+                            else if (pattern.end == PatternEnd.Reverse) {
+                                noteCount = 1;
+                                patternIndex = numPatternNotes - 2;
+                                patternDirection *= -1;
+                            }
+                        }
+                        else
+                        {
+                            noteCount = 0;
+                            patternIndex -= patternDirection;
+                        }
+                    }
+                }
+                else
+                {
+                    patternIndex += patternDirection;
+                }
+            }
+
+            var s = "";
+            foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
+            Debug.Log("three note step arp: "+s);
+            
+            return pianoRoll;
+        }
+        
+        //
+        
         private void SetDefaultPlaybackSettings(ScriptableObjectInstrument instrument, bool changeKeys = true)
         {
             playbackSettings = new InstrumentSettings()

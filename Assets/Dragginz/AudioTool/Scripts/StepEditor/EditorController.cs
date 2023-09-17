@@ -333,6 +333,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void OnActionAddRegion()
         {
+            if (!_mouseRegionBeatPos.posIsValid) return;
+            
             //Debug.Log("trackPos, regionPos: "+trackPos+", "+regionPos);
             //_audioEngine.AddRegion(trackPos, regionPos);
             var track = _audioEngine.GetTrack(_mouseRegionBeatPos.trackPos);

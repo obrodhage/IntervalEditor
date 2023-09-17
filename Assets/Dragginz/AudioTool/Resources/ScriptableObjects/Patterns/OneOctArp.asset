@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9a7a1bd0022c4e39a1c65b9f5c06ca5, type: 3}
-  m_Name: ShortArpeggio
+  m_Name: OneOctArp
   m_EditorClassIdentifier: 
   sortOrder: 0
-  name: 3 Note Arpeggio
-  patternIntervals:
-  - {x: 0, y: 0}
-  - {x: 0, y: 1}
-  - {x: 0, y: 2}
-  - {x: 0, y: 1}
+  name: 1 Octave Arp.
+  octaves: 0
+  start: 0
+  startDirection: 0
+  end: 0
+  type: 0

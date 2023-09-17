@@ -10,7 +10,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private EditorController _editorController;
         
         private List<List<int>> _intervals;
-        private List<List<Vector2>> _patterns;
         
         private List<ScriptableObjectChord> _listChords;
         private List<ScriptableObjectPattern> _listPatterns;
@@ -73,18 +72,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public void InitPatternList(List<ScriptableObjectPattern> sortedListPatterns)
         {
             _listPatterns = sortedListPatterns;
-
-            _patterns = new List<List<Vector2>>();
-        
-            foreach (var soPattern in _listPatterns)
-            {
-                var numPatternIntervals = soPattern.patternIntervals.Length;
-                var pattern = new List<Vector2>();
-                foreach (var interval in soPattern.patternIntervals) {
-                    pattern.Add(interval);
-                }
-                _patterns.Add(pattern);
-            }
         }
 
         public void InitInstrumentList(List<ScriptableObjectInstrument> listInstrumentObjects)
@@ -193,7 +180,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     r.RegionUi.UpdateValues(key, chord);
                     
                     if (instrument.type == InstrumentType.SingleNote) {
-                        r.CreatePianoRoll(_intervals, _patterns);
+                        r.CreatePianoRoll(_intervals, _listPatterns);
                     }
                 }
                 
@@ -242,7 +229,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         var chord = _listChords[r.playbackSettings.Interval].name;
                         r.RegionUi.UpdateValues(key, chord);
                         if (t.Instrument.type == InstrumentType.SingleNote) {
-                            r.CreatePianoRoll(_intervals, _patterns);
+                            r.CreatePianoRoll(_intervals, _listPatterns);
                         }
                         break;
                     }
@@ -266,7 +253,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         if (r.startPosBeats < regionPos)
                         {
                             r.UpdateStartPos(regionPos, BeatsPerSec);
-                            r.CreatePianoRoll(_intervals, _patterns);
+                            r.CreatePianoRoll(_intervals, _listPatterns);
                             _editorController.UpdateRegionGameObjectPosAndSize(r);
                         }
 
@@ -278,7 +265,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     
                     //" 4 Beats", " 8 Beats", "12 Beats", "16 Beats", "20 Beats", "24 Beats"
                     r.UpdateLength((length + 1) * 4, BeatsPerSec); // not the best solution
-                    r.CreatePianoRoll(_intervals, _patterns);
+                    r.CreatePianoRoll(_intervals, _listPatterns);
                     _editorController.UpdateRegionGameObjectPosAndSize(r);
                     
                     regionPos = r.startPosBeats + r.beats;
@@ -329,7 +316,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
                 region = new Region();
                 region.Init(regionBeatPos.regionStartPos, regionBeatPos.numBeats, t, BeatsPerSec);
-                region.CreatePianoRoll(_intervals, _patterns);
+                region.CreatePianoRoll(_intervals, _listPatterns);
                 
                 t.AddRegion(region);
 
@@ -556,57 +543,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (track.Instrument.type == InstrumentType.Looper) continue;
                 
                 foreach (var region in track.Regions) {
-                    region.CreatePianoRoll(_intervals, _patterns);
+                    region.CreatePianoRoll(_intervals, _listPatterns);
                 }
             }
         }
-        
-        // EVENTS
-
-        /*private void OnToggleMuteChanged(bool value)
-        {
-            if (_isUpdatingInstrumentInfo) return;
-            if (_uiControllerMain.SelectedInstrument >= _instruments.Count) return;
-
-            if (value) _numInstrumentsMuted++;
-            else _numInstrumentsMuted--;
-        
-            // set mute flag for selected instrument
-            _instruments[_uiControllerMain.SelectedInstrument].MuteIntervals(value, _numInstrumentsSoloed);
-
-            UpdateToggleInteractivity(_uiControllerMain.SelectedInstrument);
-        
-            //Debug.Log("mute changed to "+value);
-        }
-        private void OnToggleSoloChanged(bool value)
-        {
-            if (_isUpdatingInstrumentInfo) return;
-            if (_uiControllerMain.SelectedInstrument >= _instruments.Count) return;
-        
-            if (value) _numInstrumentsSoloed++;
-            else _numInstrumentsSoloed--;
-        
-            // set solo flag for selected instrument
-            _instruments[_uiControllerMain.SelectedInstrument].SoloIntervals(value, _numInstrumentsSoloed);
-
-            // mute/unmute other instruments
-            for (var i = 0; i < _numInstruments; ++i)
-            {
-                if (i != _uiControllerMain.SelectedInstrument) {
-                    _instruments[i].ForceMuteIntervals(value, _numInstrumentsSoloed);
-                }
-            }
-
-            //Debug.Log("solo changed to "+value);
-        }
-
-        private void OnSliderVolumeChanged(float value)
-        {
-            if (_isUpdatingInstrumentInfo) return;
-            if (_uiControllerMain.SelectedInstrument >= _instruments.Count) return;
-        
-            // set volume for selected instrument
-            _instruments[_uiControllerMain.SelectedInstrument].SetVolume(value, _numInstrumentsSoloed);
-        }*/
     }
 }
