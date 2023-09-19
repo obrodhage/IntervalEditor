@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
+using Dragginz.AudioTool.Scripts.StepEditor;
 
 namespace Dragginz.AudioTool.Scripts.Includes
 {
@@ -42,17 +43,7 @@ namespace Dragginz.AudioTool.Scripts.Includes
             "Bb",
             "B"
         };
-
-        public const int RegionTypeChord = 0;
-        public const int RegionTypeArpeggiator = 1;
-        public const int RegionTypeLoop = 2;
         
-        public static readonly string[] Types = {
-            "Chord",
-            "Arpeggiator",
-            "Loop"
-        };
-
         public static readonly string[] ChordNotes = {
             "One Shot",
             "Full Note",
@@ -94,16 +85,16 @@ namespace Dragginz.AudioTool.Scripts.Includes
         public struct InstrumentSettings
         {
             public ScriptableObjectInstrument Instrument;
-            //public InstrumentType InstrumentType;
 
             public int Key;
             public int Interval;
             public int Octave;
             public int Type;
-            public int Pattern;
+            //public int Pattern;
             public int Note;
+
+            public ArpeggiatorData arpeggiatorData;
             
-            //public bool Mute;
             public bool Solo;
             public bool HighOctave;
             public bool RootNoteOnly;
@@ -113,7 +104,6 @@ namespace Dragginz.AudioTool.Scripts.Includes
             
             public bool CanLoop;
         
-            //public float BeatsPerSecond;
             public double SampleLoopStart;
             public double SampleLoopEnd;
             

@@ -51,5 +51,6 @@ MonoBehaviour:
   bpm: 120
   beats: 12
   sampleRate: 48000
+  canLoop: 1
   beatLoopStart: 3
   beatLoopEnd: 9

@@ -257,7 +257,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             {
                 if (curDspTime >= startDspTime + region.regionEndTime)
                 {
-                    if (region.playbackSettings.Type == Globals.RegionTypeLoop) //InstrumentController.Settings.CanLoop
+                    if (region.playbackSettings.Type == (int)InstrumentType.Looper)
                     {
                         //Debug.Log("skip to end");
                         InstrumentController.SkipToEndBeat(curDspTime); // let loopers ring out
@@ -274,7 +274,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 }
                 else
                 {
-                    if (region.playbackSettings.Type == Globals.RegionTypeLoop) //Instrument.type == InstrumentType.Looper)
+                    if (region.playbackSettings.Type == (int)InstrumentType.Looper)
                     {
                         if (!InstrumentController.Settings.CanLoop) return;
                         if (curDspTime >= InstrumentController.LoopDspTime)
@@ -315,7 +315,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             var region = Regions[curRegionIndex];
             region.isPlaying = true;
             
-            if (region.playbackSettings.Type == Globals.RegionTypeLoop) //Instrument.type == InstrumentType.Looper)
+            if (region.playbackSettings.Type == (int)InstrumentType.Looper)
             {
                 InstrumentController.PlayIntervals(
                     region.playbackSettings.Key,

@@ -112,9 +112,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             uiControllerRegionInfo.OnDropDownIntervalEvent += RegionInfoIntervalChange;
             uiControllerRegionInfo.OnDropDownOctaveEvent += RegionInfoOctaveChange;
             uiControllerRegionInfo.OnDropDownTypeEvent += RegionInfoTypeChange;
-            uiControllerRegionInfo.OnDropDownPatternEvent += RegionInfoPatternChange;
+            //uiControllerRegionInfo.OnDropDownPatternEvent += RegionInfoPatternChange;
             uiControllerRegionInfo.OnDropDownNoteEvent += RegionInfoNoteChange;
             uiControllerRegionInfo.OnDropDownChordNoteEvent += RegionInfoChordNoteChange;
+            
+            uiControllerRegionInfo.OnArpeggiatorUpdateEvent += RegionInfoArpeggiatorUpdateChange;
             
             uiControllerRegionInfo.OnSliderVolumeEvent += RegionInfoVolumeChange;
             uiControllerRegionInfo.OnSliderPanEvent += RegionInfoPanChange;
@@ -433,17 +435,24 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             _curRegionEdit.playbackSettings.Type = type;
             _audioEngine.UpdateRegion(_curRegionEdit);
-            uiControllerRegionInfo.updateGroupVisibility(_curRegionEdit.playbackSettings);
+            uiControllerRegionInfo.UpdateGroupVisibility(_curRegionEdit.playbackSettings);
         }
 
-        private void RegionInfoPatternChange(int pattern)
+        /*private void RegionInfoPatternChange(int pattern)
         {
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Pattern = pattern;
             _audioEngine.UpdateRegion(_curRegionEdit);
-        }
+        }*/
 
+        private void RegionInfoArpeggiatorUpdateChange(ArpeggiatorData data)
+        {
+            if (_curRegionEdit == null) return;
+            
+            _audioEngine.UpdateRegionArpeggiatorData(_curRegionEdit, data);
+        }
+        
         private void RegionInfoNoteChange(int note)
         {
             if (_curRegionEdit == null) return;

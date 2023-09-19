@@ -19,6 +19,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         public InstrumentSettings playbackSettings;
 
+        public ArpeggiatorData arpeggiatorData;
+        
         public float regionStartTime;
         public float regionEndTime;
 
@@ -40,6 +42,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             //Debug.Log("regionStartTime, regionEndTime: "+regionStartTime+", "+regionEndTime);
             
             SetDefaultPlaybackSettings(track.Instrument);
+
+            arpeggiatorData = new ArpeggiatorData();
         }
     
         public void SetChordData(int k, int i, int o)
@@ -51,7 +55,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         public void SetPatternData(int p, int n)
         {
-            playbackSettings.Pattern = p;
+            //playbackSettings.Pattern = p;
             playbackSettings.Note = n;
         }
 
@@ -73,9 +77,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             PianoRoll?.Clear();
             
-            if (playbackSettings.Type == RegionTypeArpeggiator)
+            if (playbackSettings.Type == (int)InstrumentType.Arpeggiator)
             {
-                PianoRoll = CreateArpPianoRoll(intervals, soPatterns[playbackSettings.Pattern]);
+                PianoRoll = CreateArpPianoRoll(intervals); //, soPatterns[playbackSettings.Pattern]);
             }
             else
             {
@@ -134,11 +138,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         // Arpeggiator
         //
         
-        private List<PianoRoll> CreateArpPianoRoll(IReadOnlyList<List<int>> intervals, ScriptableObjectPattern pattern)
+        private List<PianoRoll> CreateArpPianoRoll(IReadOnlyList<List<int>> intervals) //, ScriptableObjectPattern soPattern)
         {
             var pianoRoll = new List<PianoRoll>();
 
             var noteInterval = 60f / 120.0f * 4f / ArpeggiatorNotesPerBar[playbackSettings.Note]; // ArpeggiatorNotesPerBar is set in Globals
+            arpeggiatorData.noteInterval = noteInterval;
+            
+            arpeggiatorData.startTime = regionStartTime;
+            arpeggiatorData.endTime = regionEndTime;
             
             var intervalStartIndex = (playbackSettings.Octave * 12) + playbackSettings.Key;
 
@@ -147,7 +155,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             // create list of all interval notes
             var listPattern = new List<int>();
-            var numOctaves = (int)pattern.octaves + 1;
+            var numOctaves = arpeggiatorData.octave + 1;
             for (var octave = 0; octave < numOctaves; ++octave)
             {
                 for (var i = 0; i < numIntervals; ++i)
@@ -161,19 +169,23 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     listPattern.Add(index);
                 }
             }
+
+            //arpeggiatorData.soPattern = soPattern;
+            arpeggiatorData.listPattern = listPattern;
             
+
             Debug.Log("Track "+trackPos+", region "+startPosBeats+$" -> arpeggiator pattern: {string.Join(",", listPattern.ToArray())}");
 
-            return pattern.type switch
+            return arpeggiatorData.type switch
             {
-                PatternType.SimpleArpeggio => CreateArpSimple(pattern, noteInterval, listPattern),
-                PatternType.ThreeNoteSteps => CreateArpThreeNoteSteps(pattern, noteInterval, listPattern),
-                PatternType.RootClimb => pianoRoll,
+                (int)ArpType.SimpleArpeggio => Arpeggiator.CreateArpSimple(arpeggiatorData),
+                (int)ArpType.ThreeNoteSteps => Arpeggiator.CreateArpThreeNoteSteps(arpeggiatorData),
+                (int)ArpType.RootClimb => pianoRoll,
                 _ => pianoRoll
             };
         }
         
-        private List<PianoRoll> CreateArpSimple(ScriptableObjectPattern pattern, float noteInterval, IReadOnlyList<int> listPattern)
+        /*private List<PianoRoll> CreateArpSimple(ScriptableObjectPattern pattern, float noteInterval, IReadOnlyList<int> listPattern)
         {
             var pianoRoll = new List<PianoRoll>();
 
@@ -315,7 +327,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             Debug.Log("three note step arp: "+s);
             
             return pianoRoll;
-        }
+        }*/
         
         //
         
@@ -328,7 +340,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 Interval = (changeKeys ? 0 : playbackSettings.Interval),
                 Octave = (changeKeys ? 0 : playbackSettings.Octave),
                 Type = (instrument.type == InstrumentType.Looper) ? 2 : 0,
-                Pattern = 0,
+                //Pattern = 0,
                 Note = 0,
                 CanLoop = instrument.type == InstrumentType.Looper,
                 HighOctave = instrument.highOctave,

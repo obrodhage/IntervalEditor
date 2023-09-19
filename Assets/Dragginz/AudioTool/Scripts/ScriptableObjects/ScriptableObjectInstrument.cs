@@ -5,8 +5,9 @@ namespace Dragginz.AudioTool.Scripts.ScriptableObjects
 {
     public enum InstrumentType
     {
-        Looper,
-        SingleNote
+        Chord,
+        Arpeggiator,
+        Looper
     }
 
     [CreateAssetMenu(fileName = "Instrument", menuName = "ScriptableObjects/Instrument", order = 1)]
@@ -35,6 +36,7 @@ namespace Dragginz.AudioTool.Scripts.ScriptableObjects
         public uint beats;
         public uint sampleRate;
 
+        public bool canLoop;
         public double beatLoopStart;
         public double beatLoopEnd;
     }
