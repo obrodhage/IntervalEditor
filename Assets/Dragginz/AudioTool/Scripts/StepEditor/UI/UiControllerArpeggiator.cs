@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Dragginz.AudioTool.Scripts.Includes;
-using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using Toggle = UnityEngine.UI.Toggle;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 {
@@ -16,7 +11,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         [SerializeField] private TMP_Dropdown dropDownOctaves;
         [SerializeField] private TMP_Dropdown dropDownStart;
-        [SerializeField] private TMP_Dropdown dropDownDirection;
         [SerializeField] private TMP_Dropdown dropDownEnd;
         [SerializeField] private TMP_Dropdown dropDownTypes;
         
@@ -33,8 +27,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         // Getters
 
-        public ArpeggiatorData Data => _curData;
-        
         // System Methods
 
         private void Awake()
@@ -43,13 +35,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
             PopulateOctavesDropDown();
             PopulateStartDropDown();
-            PopulateDirectionDropDown();
             PopulateEndDropDown();
             PopulateTypesDropDown();
             
             dropDownOctaves.onValueChanged.AddListener(delegate { OnDropDownOctaveChanged(); });
             dropDownStart.onValueChanged.AddListener(delegate { OnDropDownStartChanged(); });
-            dropDownDirection.onValueChanged.AddListener(delegate { OnDropDownDirectionChanged(); });
             dropDownEnd.onValueChanged.AddListener(delegate { OnDropDownEndChanged(); });
             dropDownTypes.onValueChanged.AddListener(delegate { OnDropDownTypeChanged(); });
         }
@@ -75,17 +65,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             }
             dropDownStart.options = optionData;
         }
-
-        private void PopulateDirectionDropDown()
-        {
-            var optionData = new List<TMP_Dropdown.OptionData>();
-            foreach (int i in Enum.GetValues(typeof(ArpDirection))) {
-                var s = Enum.GetName(typeof(ArpDirection), i);
-                optionData.Add(new TMP_Dropdown.OptionData(s));
-            }
-            dropDownDirection.options = optionData;
-        }
-
+        
         private void PopulateEndDropDown()
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
@@ -120,13 +100,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             OnDropDownArpeggiatorEvent?.Invoke(_curData);
         }
 
-        private void OnDropDownDirectionChanged()
-        {
-            if (_uiIsUpdating) return;
-            _curData.direction = dropDownDirection.value;
-            OnDropDownArpeggiatorEvent?.Invoke(_curData);
-        }
-
         private void OnDropDownEndChanged()
         {
             if (_uiIsUpdating) return;
@@ -151,7 +124,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             
             dropDownOctaves.value = _curData.octave;
             dropDownStart.value = _curData.start;
-            dropDownDirection.value = _curData.direction;
             dropDownEnd.value = _curData.end;
             dropDownTypes.value = _curData.type;
             

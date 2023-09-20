@@ -12,7 +12,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private List<List<int>> _intervals;
         
         private List<ScriptableObjectChord> _listChords;
-        private List<ScriptableObjectPattern> _listPatterns;
+        //private List<ScriptableObjectPattern> _listPatterns;
         private List<ScriptableObjectInstrument> _listInstruments;
         
         private int _numInstrumentsMuted;
@@ -69,10 +69,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
         }
 
-        public void InitPatternList(List<ScriptableObjectPattern> sortedListPatterns)
+        /*public void InitPatternList(List<ScriptableObjectPattern> sortedListPatterns)
         {
             _listPatterns = sortedListPatterns;
-        }
+        }*/
 
         public void InitInstrumentList(List<ScriptableObjectInstrument> listInstrumentObjects)
         {
@@ -180,7 +180,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     r.RegionUi.UpdateValues(key, chord);
                     
                     if (instrument.type != InstrumentType.Looper) {
-                        r.CreatePianoRoll(_intervals, _listPatterns);
+                        r.CreatePianoRoll(_intervals);//, _listPatterns);
                     }
                 }
                 
@@ -229,7 +229,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         var chord = _listChords[r.playbackSettings.Interval].name;
                         r.RegionUi.UpdateValues(key, chord);
                         if (t.Instrument.type != InstrumentType.Looper) {
-                            r.CreatePianoRoll(_intervals, _listPatterns);
+                            r.CreatePianoRoll(_intervals); //, _listPatterns);
                         }
                         break;
                     }
@@ -247,14 +247,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 {
                     if (r.startPosBeats == updateRegion.startPosBeats)
                     {
-                        r.arpeggiatorData.octave = updateRegion.arpeggiatorData.octave;
-                        r.arpeggiatorData.start = updateRegion.arpeggiatorData.start;
-                        r.arpeggiatorData.direction = updateRegion.arpeggiatorData.direction;
-                        r.arpeggiatorData.end = updateRegion.arpeggiatorData.end;
-                        r.arpeggiatorData.type = updateRegion.arpeggiatorData.type;
+                        r.playbackSettings.arpData.octave = data.octave;
+                        r.playbackSettings.arpData.start = data.start;
+                        r.playbackSettings.arpData.direction = data.direction;
+                        r.playbackSettings.arpData.end = data.end;
+                        r.playbackSettings.arpData.type = data.type;
                         
                         if (t.Instrument.type != InstrumentType.Looper) {
-                            r.CreatePianoRoll(_intervals, _listPatterns);
+                            r.CreatePianoRoll(_intervals) ;//, _listPatterns);
                         }
                     }
                 }
@@ -277,7 +277,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         if (r.startPosBeats < regionPos)
                         {
                             r.UpdateStartPos(regionPos, BeatsPerSec);
-                            r.CreatePianoRoll(_intervals, _listPatterns);
+                            r.CreatePianoRoll(_intervals); //, _listPatterns);
                             _editorController.UpdateRegionGameObjectPosAndSize(r);
                         }
 
@@ -286,10 +286,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     }
                     
                     if (r.startPosBeats != updateRegion.startPosBeats) continue;
-                    
-                    //" 4 Beats", " 8 Beats", "12 Beats", "16 Beats", "20 Beats", "24 Beats"
-                    r.UpdateLength((length + 1) * 4, BeatsPerSec); // not the best solution
-                    r.CreatePianoRoll(_intervals, _listPatterns);
+
+                    r.UpdateLength(length, BeatsPerSec);
+                    r.CreatePianoRoll(_intervals); //, _listPatterns);
                     _editorController.UpdateRegionGameObjectPosAndSize(r);
                     
                     regionPos = r.startPosBeats + r.beats;
@@ -340,7 +339,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
                 region = new Region();
                 region.Init(regionBeatPos.regionStartPos, regionBeatPos.numBeats, t, BeatsPerSec);
-                region.CreatePianoRoll(_intervals, _listPatterns);
+                region.CreatePianoRoll(_intervals); //, _listPatterns);
                 
                 t.AddRegion(region);
 
@@ -567,7 +566,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (track.Instrument.type == InstrumentType.Looper) continue;
                 
                 foreach (var region in track.Regions) {
-                    region.CreatePianoRoll(_intervals, _listPatterns);
+                    region.CreatePianoRoll(_intervals); //, _listPatterns);
                 }
             }
         }

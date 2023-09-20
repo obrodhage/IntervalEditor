@@ -25,7 +25,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private TMP_Dropdown dropDownTypes;
         
         [SerializeField] private GameObject groupArpeggiator;
-        [SerializeField] private TMP_Dropdown dropDownPatterns;
+        //[SerializeField] private TMP_Dropdown dropDownPatterns;
         [SerializeField] private TMP_Dropdown dropDownNotes;
         [SerializeField] private GameObject panelArpeggiator;
         
@@ -137,8 +137,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public void PopulateLengthsDropDown(string[] keys)
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
-            foreach (var key in keys) {
-                optionData.Add(new TMP_Dropdown.OptionData(key));
+            //foreach (var key in keys) {
+            //    optionData.Add(new TMP_Dropdown.OptionData(key));
+            //}
+            for (var i = 1; i <= 32; ++i)
+            {
+                var s = $"{i} beat{(i > 1 ? "s" : "")}";
+                optionData.Add(new TMP_Dropdown.OptionData(s));
             }
             dropDownLength.options = optionData;
         }
@@ -160,8 +165,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             }
             dropDownIntervals.options = optionData;
         }
-        
-        public void PopulateOctavesDropDown(List<int> octaves)
+
+        private void PopulateOctavesDropDown(List<int> octaves)
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
             foreach (var octave in octaves) {
@@ -170,14 +175,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownOctaves.options = optionData;
         }
         
-        public void PopulatePatternsDropDown(List<ScriptableObjectPattern> sortedListPatterns)
+        /*public void PopulatePatternsDropDown(List<ScriptableObjectPattern> sortedListPatterns)
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
             foreach (var chord in sortedListPatterns) {
                 optionData.Add(new TMP_Dropdown.OptionData(chord.name));
             }
             dropDownPatterns.options = optionData;
-        }
+        }*/
         
         public void PopulateArpeggiatorNotesDropDown(string[] keys)
         {
@@ -207,8 +212,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
             ShowRegionInfoHeader(region);
             
-            //" 4 Beats", " 8 Beats", "12 Beats", "16 Beats", "20 Beats", "24 Beats"
-            dropDownLength.value = (region.beats / 4) - 1; // not the best solution
+            dropDownLength.value = region.beats - 1;
             
             dropDownKeys.value = settings.Key;
             dropDownIntervals.value = settings.Interval;
@@ -239,6 +243,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             toggleRootNoteOnly.isOn = settings.RootNoteOnly;
             toggleHighOctave.isOn = settings.HighOctave;
 
+            _uiControllerArpeggiator.ShowArpeggiatorData(region.playbackSettings.arpData);
+            
             _uiIsUpdating = false;
         }
 

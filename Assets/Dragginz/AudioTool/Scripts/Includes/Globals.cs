@@ -90,10 +90,9 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public int Interval;
             public int Octave;
             public int Type;
-            //public int Pattern;
             public int Note;
 
-            public ArpeggiatorData arpeggiatorData;
+            public ArpeggiatorData arpData;
             
             public bool Solo;
             public bool HighOctave;

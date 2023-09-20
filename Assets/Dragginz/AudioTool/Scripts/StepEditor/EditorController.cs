@@ -27,7 +27,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private List<ScriptableObjectChord> _listChordObjects;
         private List<ScriptableObjectInstrument> _listInstrumentObjects;
-        private List<ScriptableObjectPattern> _listPatternObjects;
+        //private List<ScriptableObjectPattern> _listPatternObjects;
         
         private RectTransform _rectTransformPosMarker;
         private Vector2 _posMarkerPos;
@@ -74,21 +74,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 
             LoadIntervalsFromScriptableObjects();
             LoadInstrumentsFromScriptableObjects();
-            LoadPatternsFromScriptableObjects();
+            //LoadPatternsFromScriptableObjects();
             
             uiControllerTrackInfo.PopulateInstrumentsDropDown(_listInstrumentObjects);
 
             uiControllerRegionInfo.PopulateLengthsDropDown(Globals.RegionLengths);
             uiControllerRegionInfo.PopulateKeysDropDown(Globals.Keys);
             uiControllerRegionInfo.PopulateIntervalsDropDown(_listChordObjects);
-            uiControllerRegionInfo.PopulatePatternsDropDown(_listPatternObjects);
+            //uiControllerRegionInfo.PopulatePatternsDropDown(_listPatternObjects);
             uiControllerRegionInfo.PopulateArpeggiatorNotesDropDown(Globals.ArpeggiatorNotes);
             uiControllerRegionInfo.PopulateChordNotesDropDown(Globals.ChordNotes);
             
             CreateBarHeaders();
             
             _audioEngine.InitChordList(_listChordObjects);
-            _audioEngine.InitPatternList(_listPatternObjects);
+            //_audioEngine.InitPatternList(_listPatternObjects);
             _audioEngine.InitInstrumentList(_listInstrumentObjects);
             
             _uiControllerEditor.Init();
@@ -235,14 +235,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _listInstrumentObjects = listInstruments.OrderBy(o=>o.sortOrder).ToList();
         }
         
-        private void LoadPatternsFromScriptableObjects()
+        /*private void LoadPatternsFromScriptableObjects()
         {
             var soPatterns = Resources.LoadAll("ScriptableObjects/Patterns", typeof(ScriptableObjectPattern));
             if (soPatterns == null) return;
         
             var listPatterns = soPatterns.Select(instrument => instrument as ScriptableObjectPattern).ToList();
             _listPatternObjects = listPatterns.OrderBy(o=>o.sortOrder).ToList();
-        }
+        }*/
 
         private void CreateBarHeaders()
         {
@@ -401,7 +401,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _audioEngine.UpdateRegionLength(_curRegionEdit, length);
+            _audioEngine.UpdateRegionLength(_curRegionEdit, length+1);
             uiControllerRegionInfo.ShowRegionInfoHeader(_curRegionEdit); // refresh
         }
 
