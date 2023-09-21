@@ -6,7 +6,7 @@ namespace Dragginz.AudioTool.Scripts.Includes
 {
     public static class Globals
     {
-        public const string Version = "v0.9.8.23";
+        public const string Version = "v0.9.20.23";
         
         public const uint TrackInfo = 0;
         public const uint TrackMute = 1;
@@ -16,18 +16,19 @@ namespace Dragginz.AudioTool.Scripts.Includes
         
         public const int StepEditorBars = 32;
             
-        public const int PrefabTrackHeight = 40;
+        public const int PrefabTrackHeight = 50;
         public const int PrefabBarWidth = 80;
         public const int PrefabBarBeatWidth = 20;
         
-        public static readonly string[] RegionLengths = {
-            " 4 Beats",
-            " 8 Beats",
-            "12 Beats",
-            "16 Beats",
-            "20 Beats",
-            "24 Beats"
-        };
+        public const int MaxRegionLengthBeats = 32;
+        
+        public enum RegionSizeControls
+        {
+            NudgeLeft,
+            NudgeRight,
+            ExpandLeft,
+            ExpandRight
+        }
         
         public static readonly string[] Keys = {
             "C",

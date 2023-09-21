@@ -46,6 +46,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         public delegate void ButtonClearEvent();
         public event ButtonClearEvent OnButtonClearEvent;
+
+        public float RegionContentOffset;
         
         // Getters
         public GameObject GoContentTracks => goContentTracks;
@@ -100,8 +102,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
         private void OnScrollbarBeatsChange(float value)
         {
+            RegionContentOffset = rectTransformBarsContent.anchoredPosition.x;
+            
             var anchoredPosition = rectTransformRegionsContent.anchoredPosition;
-            anchoredPosition.x = rectTransformBarsContent.anchoredPosition.x;
+            anchoredPosition.x = RegionContentOffset;
             rectTransformRegionsContent.anchoredPosition = anchoredPosition;
         }
 
@@ -111,6 +115,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         {
             buttonPlay.interactable = !startPlayback;
             buttonStop.interactable = !buttonPlay.interactable;
+
+            buttonDemo.interactable = !startPlayback;
+            buttonClear.interactable = !startPlayback;
         }
 
         public Globals.MouseRegionBeatPos GetRegionBeatPos()
@@ -134,8 +141,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         public void OnButtonRegionsClick()
         {
-            //var regionBeatPos = GetRegionBeatPos();
-            
             OnActionAddRegionEvent?.Invoke();
         }
     }

@@ -18,14 +18,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private Button buttonClose;
         [SerializeField] private TMP_Text labelInstrument;
         
-        [SerializeField] private TMP_Dropdown dropDownLength;
         [SerializeField] private TMP_Dropdown dropDownKeys;
         [SerializeField] private TMP_Dropdown dropDownIntervals;
         [SerializeField] private TMP_Dropdown dropDownOctaves;
         [SerializeField] private TMP_Dropdown dropDownTypes;
         
         [SerializeField] private GameObject groupArpeggiator;
-        //[SerializeField] private TMP_Dropdown dropDownPatterns;
         [SerializeField] private TMP_Dropdown dropDownNotes;
         [SerializeField] private GameObject panelArpeggiator;
         
@@ -36,6 +34,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private Toggle toggleHighOctave;
         [SerializeField] private Slider sliderVolume;
         [SerializeField] private Slider sliderPan;
+        
+        [SerializeField] private TMP_Dropdown dropDownLength;
+        [SerializeField] private Button buttonNudgeLeft;
+        [SerializeField] private Button buttonNudgeRight;
+        [SerializeField] private Button buttonExpandLeft;
+        [SerializeField] private Button buttonExpandRight;
         
         [SerializeField] private Button buttonDelete;
         
@@ -56,9 +60,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void DropDownTypeEvent(int interval);
         public event DropDownTypeEvent OnDropDownTypeEvent;
         
-        //public delegate void DropDownPatternEvent(int key);
-        //public event DropDownPatternEvent OnDropDownPatternEvent;
-    
         public delegate void ArpeggiatorUpdateEvent(ArpeggiatorData data);
         public event ArpeggiatorUpdateEvent OnArpeggiatorUpdateEvent;
         
@@ -79,6 +80,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
     
         public delegate void SliderPanEvent(float value);
         public event SliderPanEvent OnSliderPanEvent;
+        
+        public delegate void ButtonRegionSizeEvent(Globals.RegionSizeControls action);
+        public event ButtonRegionSizeEvent OnButtonRegionSizeEvent;
         
         public delegate void ButtonDeleteEvent();
         public event ButtonDeleteEvent OnButtonDeleteEvent;
@@ -119,7 +123,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownIntervals.onValueChanged.AddListener(delegate { OnDropDownIntervalChanged(); });
             dropDownOctaves.onValueChanged.AddListener(delegate { OnDropDownOctaveChanged(); });
             dropDownTypes.onValueChanged.AddListener(delegate { OnDropDownTypeChanged(); });
-            //dropDownPatterns.onValueChanged.AddListener(delegate { OnDropDownPatternChanged(); });
             dropDownNotes.onValueChanged.AddListener(delegate { OnDropDownNoteChanged(); });
             dropDownChordNotes.onValueChanged.AddListener(delegate { OnDropDownChordNoteChanged(); });
 
@@ -129,18 +132,20 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             sliderVolume.onValueChanged.AddListener(delegate { OnSliderVolumeChanged(sliderVolume.value); });
             sliderPan.onValueChanged.AddListener(delegate { OnSliderPanChanged(sliderVolume.value); });
             
+            buttonNudgeLeft.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.NudgeLeft); });
+            buttonNudgeRight.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.NudgeRight); });
+            buttonExpandLeft.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.ExpandLeft); });
+            buttonExpandRight.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.ExpandRight); });
+            
             buttonDelete.onClick.AddListener(DeleteRegion);
 
             _uiControllerArpeggiator.OnDropDownArpeggiatorEvent += OnArpeggiatorDataChanged;
         }
 
-        public void PopulateLengthsDropDown(string[] keys)
+        public void PopulateLengthsDropDown()
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
-            //foreach (var key in keys) {
-            //    optionData.Add(new TMP_Dropdown.OptionData(key));
-            //}
-            for (var i = 1; i <= 32; ++i)
+            for (var i = 1; i <= Globals.MaxRegionLengthBeats; ++i)
             {
                 var s = $"{i} beat{(i > 1 ? "s" : "")}";
                 optionData.Add(new TMP_Dropdown.OptionData(s));
@@ -329,6 +334,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         private void OnArpeggiatorDataChanged(ArpeggiatorData data) {
             if (!_uiIsUpdating) OnArpeggiatorUpdateEvent?.Invoke(data);
+        }
+        
+        private void OnButtonRegionSizeClicked(Globals.RegionSizeControls action) {
+            if (!_uiIsUpdating) OnButtonRegionSizeEvent?.Invoke(action);
         }
     }
 }

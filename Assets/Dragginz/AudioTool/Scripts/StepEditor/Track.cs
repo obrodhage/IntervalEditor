@@ -5,7 +5,6 @@ using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using Dragginz.AudioTool.Scripts.StepEditor.UI;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 using Object = UnityEngine.Object;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor
@@ -21,8 +20,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public int Position;
         public ScriptableObjectInstrument Instrument;
 
-        private bool muted;
-        //public bool solo;
+        private bool _muted;
+        private bool _reverbFilter;
 
         private int curRegionIndex;
         private bool donePlaying;
@@ -31,6 +30,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private UiTrack _trackUi;
 
+        // Getters
+
+        public bool reverbFilter => _reverbFilter;
+        
         public void Init(int pos, ScriptableObjectInstrument inst)
         {
             Regions = new List<Region>();
@@ -38,7 +41,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             Position = pos;
             Instrument = inst;
 
-            muted = false;
+            _muted = false;
+            _reverbFilter = false;
         }
 
         public void SetListener(UiTrack trackUi, Action<int, uint> callbackTrackClick)
@@ -51,6 +55,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _trackUi.OnClickDeleteEvent += OnDeleteClick;
         }
 
+        public void UpdateReverbFilter(bool value)
+        {
+            _reverbFilter = value;
+            InstrumentController.SetReverbFilter(_reverbFilter);
+            if (_trackUi != null) _trackUi.SetReverbFilter(_reverbFilter);
+        }
+        
         public void UpdatePosition(int pos)
         {
             Position = pos;
@@ -79,15 +90,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
     
         private void MuteTrackAndRegions()
         {
-            muted = !muted;
+            _muted = !_muted;
             foreach (var r in Regions) {
-                r.Mute(muted);
+                r.Mute(_muted);
             }
             
-            InstrumentController.Mute(muted);
+            InstrumentController.Mute(_muted);
             
             if (_trackUi != null) {
-                _trackUi.ShowMuted(muted, Instrument.name+(muted ? " Muted" : ""));
+                _trackUi.ShowMuted(_muted, Instrument.name+(_muted ? " Muted" : ""));
             }
         }
 
@@ -220,27 +231,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             curRegionIndex = 0;
         }
         
-        /*public void StartPlayback(double startDspTime, double curDspTime, int numInstrumentsSoloed)
-        {
-            var region = regions[curRegionIndex];
-
-            if (instrument.type == InstrumentType.Chord)
-            {
-                instrumentController.PlayIntervals(region.key, Intervals[region.interval], region.playbackSettings,
-                    numInstrumentsSoloed,
-                    startDspTime);
-
-                //Debug.Log("instrument "+instrument.name+" - start playback - key "+region.key);
-                //curRegionIndex++;
-            }
-            else
-            {
-                instrumentController.StartPlayback(region.PianoRoll, region.playbackSettings,
-                    numInstrumentsSoloed,
-                    startDspTime, startDspTime);
-            }
-        }*/
-        
         public void UpdatePlayback(double startDspTime, double curDspTime, int numInstrumentsSoloed)
         {
             if (donePlaying) return;
@@ -305,13 +295,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void StartRegionPlayback(double startDspTime, double curDspTime, int numInstrumentsSoloed)
         {
-            /*if (curRegionIndex >= regions.Count)
-            {
-                donePlaying = true;
-                instrumentController.StopAllSources();
-                return;
-            }*/
-
             var region = Regions[curRegionIndex];
             region.isPlaying = true;
             

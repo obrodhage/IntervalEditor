@@ -3,9 +3,7 @@ using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using Toggle = UnityEngine.UI.Toggle;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 {
@@ -19,6 +17,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         [SerializeField] private TMP_Dropdown dropDownInstruments;
         
+        [SerializeField] private Toggle toggleReverb;
+        
         [SerializeField] private Button buttonMoveUp;
         [SerializeField] private Button buttonMoveDown;
         [SerializeField] private Button buttonDelete;
@@ -28,6 +28,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void DropDownInstrumentEvent(int instrument);
         public event DropDownInstrumentEvent OnDropDownInstrumentEvent;
         
+        public delegate void ToggleReverbFilterEvent(bool value);
+        public event ToggleReverbFilterEvent OnToggleReverbFilterEvent;
+
         public delegate void ButtonMoveUpEvent();
         public event ButtonMoveUpEvent OnButtonMoveUpEvent;
         
@@ -59,7 +62,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonClose.onClick.AddListener(Hide);
             
             dropDownInstruments.onValueChanged.AddListener(delegate { OnDropDownInstrumentChanged(); });
-
+            toggleReverb.onValueChanged.AddListener(delegate { OnToggleReverbFilterChanged(toggleReverb.isOn); });
+            
             buttonMoveUp.onClick.AddListener(MoveTrackUp);
             buttonMoveDown.onClick.AddListener(MoveTrackDown);
 
@@ -81,11 +85,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             
             goTrackInfoPanel.SetActive(true);
 
-            var header = "Track " + (track.Position+1);
+            var header = "Track " + (track.Position+1) + " - " + track.Instrument.name;
             labelTrackInfo.text = header;
 
             dropDownInstruments.value = (int)track.Instrument.sortOrder;
 
+            toggleReverb.isOn = track.reverbFilter;
+            
             _uiIsUpdating = false;
         }
 
@@ -95,6 +101,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         {
             goTrackInfoPanel.SetActive(false);
             EventSystem.current.SetSelectedGameObject(null);
+        }
+        
+        private void OnToggleReverbFilterChanged(bool value) {
+            if (!_uiIsUpdating) OnToggleReverbFilterEvent?.Invoke(value);
         }
         
         private void MoveTrackUp()

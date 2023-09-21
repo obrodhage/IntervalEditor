@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
@@ -297,6 +298,97 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
         }
 
+        //
+        
+        public bool ChangeRegionSizePos(Region changeRegion, Globals.RegionSizeControls action)
+        {
+            var success = false;
+            foreach (var track in Tracks)
+            {
+                if (track.Position != changeRegion.trackPos) continue;
+
+                for (var i = 0; i < track.Regions.Count; ++i)
+                {
+                    if (track.Regions[i].startPosBeats != changeRegion.startPosBeats) continue;
+
+                    var region = track.Regions[i];
+                    if (action == Globals.RegionSizeControls.NudgeLeft)
+                    {
+                        var newRegionStartPos = region.startPosBeats - 1;
+                        if (newRegionStartPos < 0) break;
+
+                        // check for region overlap
+                        if (i > 0) {
+                            var prevRegion = track.Regions[i - 1];
+                            if ((prevRegion.startPosBeats + prevRegion.beats - 1) >= newRegionStartPos) break;
+                        }
+                            
+                        region.UpdateStartPos(newRegionStartPos, BeatsPerSec);
+                        region.CreatePianoRoll(_intervals);
+                        _editorController.UpdateRegionGameObjectPosAndSize(region);
+                        success = true;
+                    }
+                    else if (action == Globals.RegionSizeControls.NudgeRight)
+                    {
+                        var newRegionStartPos = region.startPosBeats + 1;
+
+                        // check for region overlap
+                        if (i < track.Regions.Count - 1) {
+                            var nextRegion = track.Regions[i + 1];
+                            if ((newRegionStartPos + region.beats - 1) >= nextRegion.startPosBeats) break;
+                        }
+                            
+                        region.UpdateStartPos(newRegionStartPos, BeatsPerSec);
+                        region.CreatePianoRoll(_intervals);
+                        _editorController.UpdateRegionGameObjectPosAndSize(region);
+                        success = true;
+                    }
+                    else if (action == Globals.RegionSizeControls.ExpandLeft)
+                    {
+                        var newRegionStartPos = region.startPosBeats - 1;
+                        var newLength = region.beats + 1;
+                        
+                        if (newRegionStartPos < 0) break;
+
+                        // check for region overlap
+                        if (i > 0) {
+                            var prevRegion = track.Regions[i - 1];
+                            if ((prevRegion.startPosBeats + prevRegion.beats - 1) >= newRegionStartPos) break;
+                        }
+                        
+                        region.UpdateLength(newLength, BeatsPerSec);
+                        region.UpdateStartPos(newRegionStartPos, BeatsPerSec);
+                        region.CreatePianoRoll(_intervals);
+                        _editorController.UpdateRegionGameObjectPosAndSize(region);
+                        success = true;
+                    }
+                    else if (action == Globals.RegionSizeControls.ExpandRight)
+                    {
+                        var newRegionStartPos = region.startPosBeats;
+                        var newLength = region.beats + 1;
+                        
+                        // check for region overlap
+                        if (i < track.Regions.Count - 1) {
+                            var nextRegion = track.Regions[i + 1];
+                            if ((newRegionStartPos + newLength - 1) >= nextRegion.startPosBeats) break;
+                        }
+                        
+                        region.UpdateLength(newLength, BeatsPerSec);
+                        region.UpdateStartPos(newRegionStartPos, BeatsPerSec);
+                        region.CreatePianoRoll(_intervals);
+                        _editorController.UpdateRegionGameObjectPosAndSize(region);
+                        success = true;
+                    }
+                }
+
+                break;
+            }
+
+            return success;
+        }
+        
+        //
+        
         public void DeleteRegion(Region deleteRegion)
         {
             foreach (var t in Tracks)

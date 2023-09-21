@@ -16,6 +16,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         private List<AudioClip> _audioClips;
 
+        private AudioReverbFilter _audioReverbFilter;
+        
         private List<int> _curIntervals;
         private List<SingleNote> _singleNotes;
     
@@ -40,6 +42,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             CreateAudioSourceComponents();
         }
 
+        public void SetReverbFilter(bool enabled)
+        {
+            if (_audioReverbFilter != null) _audioReverbFilter.enabled = enabled;
+        }
+        
         private void LoadAudioClipsAndSettings()
         {
             _singleNotes = new List<SingleNote>();
@@ -104,6 +111,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
 
             _numSingleNotes = _singleNotes.Count;
+            
+            _audioReverbFilter = GoParent.AddComponent(typeof(AudioReverbFilter)) as AudioReverbFilter;
+            if (_audioReverbFilter != null)
+            {
+                _audioReverbFilter.reverbPreset = AudioReverbPreset.Cave;
+                _audioReverbFilter.enabled = false;
+            }
         }
         
         // Public methods
@@ -256,79 +270,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 singleNote.AudioSource.mute = mute;
             }
         }
-        
-        /*public void MuteIntervals(bool mute, int numInstrumentsSoloed)
-        {
-            var instrumentSettings = Settings;
-            instrumentSettings.Mute = mute;
-            Settings = instrumentSettings;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }
-
-        // Mute when soloing instruments, but don't set Mute flag!
-        public void ForceMuteIntervals(bool mute, int numInstrumentsSoloed)
-        {
-            // do not unmute if mute flag is set to true!
-            if (!mute && Settings.Mute) return;
-        
-            // do not force mute if solo flag is set to true!
-            if (mute && Settings.Solo) return;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }
-    
-        public void SoloIntervals(bool solo, int numInstrumentsSoloed)
-        {
-            if (Settings.Mute) return;
-        
-            var instrumentSettings = Settings;
-            instrumentSettings.Solo = solo;
-            Settings = instrumentSettings;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }
-
-        public void SetHighOctave(bool active, int numInstrumentsSoloed)
-        {
-            var instrumentSettings = Settings;
-            instrumentSettings.HighOctave = active;
-            Settings = instrumentSettings;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }
-    
-        public void SetRootNoteOnly(bool active, int numInstrumentsSoloed)
-        {
-            var instrumentSettings = Settings;
-            instrumentSettings.RootNoteOnly = active;
-            Settings = instrumentSettings;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }
-    
-        public void SetVolume(float volume, int numInstrumentsSoloed)
-        {
-            if (Settings.Mute) return;
-
-            var instrumentSettings = Settings;
-            instrumentSettings.Volume = volume;
-            Settings = instrumentSettings;
-        
-            foreach (var singleNote in _singleNotes) {
-                singleNote.PlayNote(Settings, numInstrumentsSoloed);
-            }
-        }*/
     
         public void StopAllSources()
         {
@@ -341,10 +282,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             StopAllSources();
 
+            if (_audioReverbFilter != null) Object.DestroyImmediate(_audioReverbFilter);
+            
             if (_singleNotes != null)
             {
                 for (var i = 0; i < _numSingleNotes; ++i) {
-                    Object.Destroy(_singleNotes[i].AudioSource);
+                    Object.DestroyImmediate(_singleNotes[i].AudioSource);
                 }
                 _singleNotes.Clear();
             }
