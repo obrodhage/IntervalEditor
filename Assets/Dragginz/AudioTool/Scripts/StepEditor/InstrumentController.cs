@@ -30,7 +30,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public GameObject GoParent { get; }
 
         // Current state vars
-        public Globals.InstrumentSettings Settings { get; private set; }
+        private Globals.InstrumentSettings Settings { get; set; }
 
         public InstrumentController(ScriptableObjectInstrument soInstrument, GameObject go)
         {
@@ -42,9 +42,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             CreateAudioSourceComponents();
         }
 
-        public void SetReverbFilter(bool enabled)
+        public void SetReverbFilter(int value)
         {
-            if (_audioReverbFilter != null) _audioReverbFilter.enabled = enabled;
+            if (_audioReverbFilter == null) return;
+            
+            _audioReverbFilter.enabled = value > 0;
+            _audioReverbFilter.reverbPreset = (AudioReverbPreset) value;
         }
         
         private void LoadAudioClipsAndSettings()
@@ -67,16 +70,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             {
                 Instrument = _soInstrument,
                 Octave = _soInstrument.octaves[0],
-                //Mute = false,
                 Solo = false,
                 HighOctave = _soInstrument.highOctave,
                 RootNoteOnly = _soInstrument.rootNoteOnly,
                 Volume = _soInstrument.defaultVolume,
                 Pan = _soInstrument.defaultPan,
-                CanLoop = _soInstrument.type == InstrumentType.Looper,
-                //BeatsPerSecond = beatsPerSecond,
+                //CanLoop = _soInstrument.canLoop,
                 SampleLoopStart = (_soInstrument.beatLoopStart-1) * samplesPerBeat,
                 SampleLoopEnd = (_soInstrument.beatLoopEnd-1) * samplesPerBeat,
+                TimeLoopStart = (_soInstrument.beatLoopStart-1) / beatsPerSecond,
                 TimeLoopEnd = (_soInstrument.beatLoopEnd-1) / beatsPerSecond
             };
 
@@ -115,7 +117,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _audioReverbFilter = GoParent.AddComponent(typeof(AudioReverbFilter)) as AudioReverbFilter;
             if (_audioReverbFilter != null)
             {
-                _audioReverbFilter.reverbPreset = AudioReverbPreset.Cave;
+                _audioReverbFilter.reverbPreset = AudioReverbPreset.Off;
                 _audioReverbFilter.enabled = false;
             }
         }
@@ -251,7 +253,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 singleNote.AudioSource.timeSamples = (int)Settings.SampleLoopStart;
             }
         
-            LoopDspTime = curDspTime + Settings.TimeLoopEnd;
+            LoopDspTime = curDspTime + (Settings.TimeLoopEnd - Settings.TimeLoopStart);
         }
 
         public void SkipToEndBeat(double curDspTime)

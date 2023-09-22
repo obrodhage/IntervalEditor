@@ -61,9 +61,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             labelInstrument.text = instrumentName;
         }
         
-        public void SetReverbFilter(bool active)
+        public void SetReverbFilter(int value)
         {
-            labelReverb.color = active ? new Color(.1f, 1f, .1f, 1) : new Color(0.5f, 0.5f, 0.5f, 0.25f);
+            labelReverb.color = value > 0 ? new Color(0f, .33f, 0f, 1) : new Color(0.5f, 0.5f, 0.5f, 0.25f);
         }
 
         public void Remove()

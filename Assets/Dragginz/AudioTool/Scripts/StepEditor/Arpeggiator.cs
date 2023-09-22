@@ -18,12 +18,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         End
     }
     
-    /*public enum ArpDirection
-    {
-        Forward,
-        Back
-    }*/
-    
     public enum ArpEnd
     {
         Reverse,
@@ -45,9 +39,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public float startTime;
         public float endTime;
         
-        public int octave;
+        public int octaves;
         public int start;
-        public int direction;
         public int end;
         public int type;
     }

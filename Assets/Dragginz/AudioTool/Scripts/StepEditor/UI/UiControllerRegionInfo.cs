@@ -180,15 +180,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownOctaves.options = optionData;
         }
         
-        /*public void PopulatePatternsDropDown(List<ScriptableObjectPattern> sortedListPatterns)
-        {
-            var optionData = new List<TMP_Dropdown.OptionData>();
-            foreach (var chord in sortedListPatterns) {
-                optionData.Add(new TMP_Dropdown.OptionData(chord.name));
-            }
-            dropDownPatterns.options = optionData;
-        }*/
-        
         public void PopulateArpeggiatorNotesDropDown(string[] keys)
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
@@ -235,7 +226,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownTypes.value = settings.Type;
 
             if (settings.Type == (int)InstrumentType.Arpeggiator) {
-                //dropDownPatterns.value = settings.Pattern;
                 dropDownNotes.value = settings.Note;
             }
             if (settings.Type == (int)InstrumentType.Chord) dropDownChordNotes.value = settings.Note;

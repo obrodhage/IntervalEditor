@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Dragginz.AudioTool.Scripts.Includes;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Button = UnityEngine.UI.Button;
 
@@ -13,6 +14,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         [SerializeField] private Button buttonDemo;
         [SerializeField] private Button buttonClear;
+        [SerializeField] private Button buttonLoad;
+        [SerializeField] private Button buttonSave;
         
         [SerializeField] private Button buttonAddTrack;
         [SerializeField] private Button buttonPlay;
@@ -47,7 +50,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void ButtonClearEvent();
         public event ButtonClearEvent OnButtonClearEvent;
 
-        public float RegionContentOffset;
+        public delegate void ButtonLoadEvent();
+        public event ButtonLoadEvent OnButtonLoadEvent;
+        
+        public delegate void ButtonSaveEvent();
+        public event ButtonSaveEvent OnButtonSaveEvent;
+        
+        
+        public float regionContentOffset;
         
         // Getters
         public GameObject GoContentTracks => goContentTracks;
@@ -71,41 +81,40 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonStop.onClick.AddListener(OnButtonStopClick);
             buttonDemo.onClick.AddListener(OnButtonDemoClick);
             buttonClear.onClick.AddListener(OnButtonClearClick);
+            buttonLoad.onClick.AddListener(OnButtonLoadClick);
+            buttonSave.onClick.AddListener(OnButtonSaveClick);
             
             scrollbarBeats.onValueChanged.AddListener(OnScrollbarBeatsChange);
         }
 
-        private void OnButtonAddTrackClick()
-        {
+        private void OnButtonAddTrackClick() {
             OnButtonAddTrackEvent?.Invoke();
         }
-        
-        private void OnButtonPlayClick()
-        {
+        private void OnButtonPlayClick() {
             OnButtonPlayEvent?.Invoke();
         }
-        
-        private void OnButtonStopClick()
-        {
+        private void OnButtonStopClick() {
             OnButtonStopEvent?.Invoke();
         }
-        
-        private void OnButtonDemoClick()
-        {
+        private void OnButtonDemoClick() {
             OnButtonDemoEvent?.Invoke();
         }
-        
-        private void OnButtonClearClick()
-        {
+        private void OnButtonClearClick() {
             OnButtonClearEvent?.Invoke();
         }
-
+        private void OnButtonLoadClick() {
+            OnButtonLoadEvent?.Invoke();
+        }
+        private void OnButtonSaveClick() {
+            OnButtonSaveEvent?.Invoke();
+        }
+        
         private void OnScrollbarBeatsChange(float value)
         {
-            RegionContentOffset = rectTransformBarsContent.anchoredPosition.x;
+            regionContentOffset = rectTransformBarsContent.anchoredPosition.x;
             
             var anchoredPosition = rectTransformRegionsContent.anchoredPosition;
-            anchoredPosition.x = RegionContentOffset;
+            anchoredPosition.x = regionContentOffset;
             rectTransformRegionsContent.anchoredPosition = anchoredPosition;
         }
 

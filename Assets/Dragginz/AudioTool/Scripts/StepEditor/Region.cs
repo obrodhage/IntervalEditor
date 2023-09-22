@@ -154,7 +154,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             // create list of all interval notes
             var listPattern = new List<int>();
-            var numOctaves = playbackSettings.arpData.octave + 1;
+            var numOctaves = playbackSettings.arpData.octaves + 1;
             for (var octave = 0; octave < numOctaves; ++octave)
             {
                 for (var i = 0; i < numIntervals; ++i)
@@ -197,7 +197,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 Type = (instrument.type == InstrumentType.Looper) ? 2 : 0,
                 Note = 0,
                 arpData = new ArpeggiatorData(),
-                CanLoop = instrument.type == InstrumentType.Looper,
+                //CanLoop = instrument.type == InstrumentType.Looper,
                 HighOctave = instrument.highOctave,
                 RootNoteOnly = instrument.rootNoteOnly,
                 Volume = instrument.defaultVolume,

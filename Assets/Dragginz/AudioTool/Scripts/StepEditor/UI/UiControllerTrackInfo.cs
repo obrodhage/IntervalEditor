@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using TMPro;
@@ -17,7 +18,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         [SerializeField] private TMP_Dropdown dropDownInstruments;
         
-        [SerializeField] private Toggle toggleReverb;
+        [SerializeField] private TMP_Dropdown dropDownReverbFilter;
         
         [SerializeField] private Button buttonMoveUp;
         [SerializeField] private Button buttonMoveDown;
@@ -28,8 +29,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void DropDownInstrumentEvent(int instrument);
         public event DropDownInstrumentEvent OnDropDownInstrumentEvent;
         
-        public delegate void ToggleReverbFilterEvent(bool value);
-        public event ToggleReverbFilterEvent OnToggleReverbFilterEvent;
+        public delegate void DropDownReverbFilterEvent(int value);
+        public event DropDownReverbFilterEvent OnDropDownReverbFilterEvent;
 
         public delegate void ButtonMoveUpEvent();
         public event ButtonMoveUpEvent OnButtonMoveUpEvent;
@@ -59,10 +60,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         public void Init()
         {
+            PopulateAudioFilterDropDowns();
+            
             buttonClose.onClick.AddListener(Hide);
             
             dropDownInstruments.onValueChanged.AddListener(delegate { OnDropDownInstrumentChanged(); });
-            toggleReverb.onValueChanged.AddListener(delegate { OnToggleReverbFilterChanged(toggleReverb.isOn); });
+            dropDownReverbFilter.onValueChanged.AddListener(delegate { OnDropDownReverbFilterChanged(); });
             
             buttonMoveUp.onClick.AddListener(MoveTrackUp);
             buttonMoveDown.onClick.AddListener(MoveTrackDown);
@@ -70,6 +73,18 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonDelete.onClick.AddListener(DeleteTrack);
         }
 
+        private void PopulateAudioFilterDropDowns()
+        {
+            var optionData = new List<TMP_Dropdown.OptionData>();
+            foreach (int i in Enum.GetValues(typeof(AudioReverbPreset))) {
+                var s = Enum.GetName(typeof(AudioReverbPreset), i);
+                optionData.Add(new TMP_Dropdown.OptionData(s));
+            }
+            optionData.RemoveAt(optionData.Count-1); // remove user preset
+            dropDownReverbFilter.options = optionData;
+            dropDownReverbFilter.value = 0;
+        }
+        
         public void PopulateInstrumentsDropDown(List<ScriptableObjectInstrument> sortedListInstruments)
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
@@ -90,7 +105,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
             dropDownInstruments.value = (int)track.Instrument.sortOrder;
 
-            toggleReverb.isOn = track.reverbFilter;
+            dropDownReverbFilter.value = track.ReverbFilter;
             
             _uiIsUpdating = false;
         }
@@ -103,20 +118,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             EventSystem.current.SetSelectedGameObject(null);
         }
         
-        private void OnToggleReverbFilterChanged(bool value) {
-            if (!_uiIsUpdating) OnToggleReverbFilterEvent?.Invoke(value);
+        private void OnDropDownReverbFilterChanged() {
+            if (!_uiIsUpdating) OnDropDownReverbFilterEvent?.Invoke(dropDownReverbFilter.value);
         }
         
-        private void MoveTrackUp()
-        {
-            //goTrackInfoPanel.SetActive(false);
-            
+        private void MoveTrackUp() {
             OnButtonMoveUpEvent?.Invoke();
         }
-        private void MoveTrackDown()
-        {
-            //goTrackInfoPanel.SetActive(false);
-            
+        private void MoveTrackDown() {
             OnButtonMoveDownEvent?.Invoke();
         }
         

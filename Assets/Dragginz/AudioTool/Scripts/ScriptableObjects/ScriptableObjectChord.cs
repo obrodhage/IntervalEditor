@@ -6,9 +6,11 @@ namespace Dragginz.AudioTool.Scripts.ScriptableObjects
     [CreateAssetMenu(fileName = "Chord", menuName = "ScriptableObjects/Chord", order = 2)]
     public class ScriptableObjectChord : ScriptableObject
     {
+        public int uniqueId;
+        
         public new string name;
 
-        public uint sortOrder;
+        public int sortOrder;
     
         public List<int> intervals;
     }

@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
   m_Name: Cello
   m_EditorClassIdentifier: 
+  uniqueId: 1
   name: Cello
   sortOrder: 1
   type: 0

@@ -89,7 +89,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         private void OnDropDownOctaveChanged()
         {
             if (_uiIsUpdating) return;
-            _curData.octave = dropDownOctaves.value;
+            _curData.octaves = dropDownOctaves.value;
             OnDropDownArpeggiatorEvent?.Invoke(_curData);
         }
         
@@ -122,7 +122,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
             _curData = data;
             
-            dropDownOctaves.value = _curData.octave;
+            dropDownOctaves.value = _curData.octaves;
             dropDownStart.value = _curData.start;
             dropDownEnd.value = _curData.end;
             dropDownTypes.value = _curData.type;

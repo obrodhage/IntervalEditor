@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
+using Dragginz.AudioTool.Scripts.DataModels;
 using UnityEngine;
 using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
@@ -13,7 +13,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private List<List<int>> _intervals;
         
         private List<ScriptableObjectChord> _listChords;
-        //private List<ScriptableObjectPattern> _listPatterns;
         private List<ScriptableObjectInstrument> _listInstruments;
         
         private int _numInstrumentsMuted;
@@ -69,15 +68,63 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 _intervals.Add(intervals);
             }
         }
-
-        /*public void InitPatternList(List<ScriptableObjectPattern> sortedListPatterns)
-        {
-            _listPatterns = sortedListPatterns;
-        }*/
-
+        
         public void InitInstrumentList(List<ScriptableObjectInstrument> listInstrumentObjects)
         {
             _listInstruments = listInstrumentObjects;
+        }
+
+        public DataComposition GetSaveData()
+        {
+            var data = new DataComposition {
+                title = "Test Composition",
+                bpm = (int)_curBpm,
+                tracks = new DataTrack[Tracks.Count]
+            };
+
+            for (var i = 0; i < Tracks.Count; ++i)
+            {
+                var t = Tracks[i];
+                var track = new DataTrack {
+                    pos = t.Position,
+                    instrument = t.Instrument.uniqueId,
+                    muted = t.Muted,
+                    reverbFilter = t.ReverbFilter,
+                    regions = new DataRegion[t.Regions.Count]
+                };
+
+                for (var j = 0; j < t.Regions.Count; ++j)
+                {
+                    var r = t.Regions[j];
+                    var region = new DataRegion
+                    {
+                        pos = r.startPosBeats,
+                        beats = r.beats,
+                        key = r.playbackSettings.Key,
+                        interval = r.playbackSettings.Interval,
+                        octave = r.playbackSettings.Octave,
+                        type = r.playbackSettings.Type,
+                        note = r.playbackSettings.Note,
+                        highOctave = r.playbackSettings.HighOctave,
+                        rootNoteOnly = r.playbackSettings.RootNoteOnly,
+                        volume = r.playbackSettings.Volume,
+                        pan = r.playbackSettings.Pan,
+                        dataArpeggiator = new DataArpeggiator
+                        {
+                            octaves = r.playbackSettings.arpData.octaves,
+                            start = r.playbackSettings.arpData.start,
+                            end = r.playbackSettings.arpData.end,
+                            type = r.playbackSettings.arpData.type
+                        }
+                    };
+
+                    track.regions[j] = region;
+                }
+
+                data.tracks[i] = track;
+            }
+
+            return data;
         }
         
         public void CreateDemoProject()
@@ -248,9 +295,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 {
                     if (r.startPosBeats == updateRegion.startPosBeats)
                     {
-                        r.playbackSettings.arpData.octave = data.octave;
+                        r.playbackSettings.arpData.octaves = data.octaves;
                         r.playbackSettings.arpData.start = data.start;
-                        r.playbackSettings.arpData.direction = data.direction;
+                        //r.playbackSettings.arpData.direction = data.direction;
                         r.playbackSettings.arpData.end = data.end;
                         r.playbackSettings.arpData.type = data.type;
                         
@@ -457,10 +504,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             track.InstrumentController = instrumentController;
         }
 
-        public void MoveTrack(int trackPos, int direction)
+        public bool MoveTrack(int trackPos, int direction)
         {
-            if (trackPos <= 0 && direction < 0) return;
-            if (trackPos >= (Tracks.Count - 1) && direction > 0) return;
+            if (trackPos <= 0 && direction < 0) return false;
+            if (trackPos >= (Tracks.Count - 1) && direction > 0) return false;
             
             // Debug.Log("moving track on pos "+trackPos+" "+(direction < 0 ? "up" : "down"));
             
@@ -473,6 +520,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 Tracks[t].UpdatePosition(t);
                 //Debug.Log("track "+t+" - instrument: "+Tracks[t].Instrument.name);
             }
+
+            return true;
         }
 
         public void DeleteTrack(Track deleteTrack)

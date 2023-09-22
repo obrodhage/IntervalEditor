@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbc29c17fff9c49979cae7231a8f99ec, type: 3}
   m_Name: MinorSixth
   m_EditorClassIdentifier: 
+  uniqueId: 4
   name: Minor 6th
   sortOrder: 4
   intervals: 000000000300000007000000090000000c000000

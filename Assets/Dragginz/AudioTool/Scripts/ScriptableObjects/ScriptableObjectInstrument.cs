@@ -13,9 +13,11 @@ namespace Dragginz.AudioTool.Scripts.ScriptableObjects
     [CreateAssetMenu(fileName = "Instrument", menuName = "ScriptableObjects/Instrument", order = 1)]
     public class ScriptableObjectInstrument : ScriptableObject
     {
+        public int uniqueId;
+        
         public new string name;
 
-        public uint sortOrder;
+        public int sortOrder;
 
         public InstrumentType type;
 

@@ -6,7 +6,7 @@ namespace Dragginz.AudioTool.Scripts.Includes
 {
     public static class Globals
     {
-        public const string Version = "v0.9.20.23";
+        public const string Version = "v0.9.22.23";
         
         public const uint TrackInfo = 0;
         public const uint TrackMute = 1;
@@ -102,11 +102,12 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public float Volume;
             public float Pan;
             
-            public bool CanLoop;
+            //public bool CanLoop;
         
             public double SampleLoopStart;
             public double SampleLoopEnd;
-            
+
+            public double TimeLoopStart;
             public double TimeLoopEnd;
         }
 

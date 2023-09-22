@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
   m_Name: Piano
   m_EditorClassIdentifier: 
+  uniqueId: 3
   name: Piano
   sortOrder: 3
   type: 1
@@ -99,5 +100,6 @@ MonoBehaviour:
   bpm: 120
   beats: 16
   sampleRate: 48000
+  canLoop: 0
   beatLoopStart: 0
   beatLoopEnd: 0

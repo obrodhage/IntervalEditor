@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
+using Dragginz.AudioTool.Scripts.DataModels;
 using UnityEngine;
 using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
@@ -94,13 +98,16 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             _uiControllerEditor.OnButtonDemoEvent += OnButtonDemoClick;
             _uiControllerEditor.OnButtonClearEvent += OnButtonClearClick;
+            _uiControllerEditor.OnButtonLoadEvent += OnLoadComposition;
+            _uiControllerEditor.OnButtonSaveEvent += OnSaveComposition;
+            
             _uiControllerEditor.OnButtonAddTrackEvent += OnButtonAddTrackClick;
             _uiControllerEditor.OnButtonPlayEvent += OnButtonPlayClick;
             _uiControllerEditor.OnButtonStopEvent += OnButtonStopClick;
             _uiControllerEditor.OnActionAddRegionEvent += OnActionAddRegion;
             
             uiControllerTrackInfo.OnDropDownInstrumentEvent += TrackInfoInstrumentChange;
-            uiControllerTrackInfo.OnToggleReverbFilterEvent += TrackInfoReverbFilterChange;
+            uiControllerTrackInfo.OnDropDownReverbFilterEvent += TrackInfoReverbFilterChange;
             uiControllerTrackInfo.OnButtonMoveUpEvent += TrackMoveUpEvent;
             uiControllerTrackInfo.OnButtonMoveDownEvent += TrackMoveDownEvent;
             uiControllerTrackInfo.OnButtonDeleteEvent += TrackInfoDeleteEvent;
@@ -128,7 +135,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             if (_audioEngine.IsPlaying)
             {
-                _posMarkerPos.x = PosMarkerStartX + _uiControllerEditor.RegionContentOffset + (_audioEngine.curBeat * Globals.PrefabBarBeatWidth);
+                _posMarkerPos.x = PosMarkerStartX + _uiControllerEditor.regionContentOffset + (_audioEngine.curBeat * Globals.PrefabBarBeatWidth);
                 _rectTransformPosMarker.anchoredPosition = _posMarkerPos;
             }
 
@@ -371,25 +378,35 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _audioEngine.UpdateTrackInstrument(_curTrackEdit, _listInstrumentObjects[instrument]);
         }
         
-        private void TrackInfoReverbFilterChange(bool value)
+        private void TrackInfoReverbFilterChange(int value)
         {
-            if (_curTrackEdit == null) return;
-            
-            _curTrackEdit.UpdateReverbFilter(value);
+            _curTrackEdit?.UpdateReverbFilter(value);
         }
         
         private void TrackMoveUpEvent()
         {
-            if (_curTrackEdit != null) {
-                _audioEngine.MoveTrack(_curTrackEdit.Position, -1);
+            if (_curTrackEdit == null) return;
+
+            if (_audioEngine.MoveTrack(_curTrackEdit.Position, -1))
+            {
                 uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
+            }
+            else
+            {
+                ErrorMessage();
             }
         }
         private void TrackMoveDownEvent()
         {
-            if (_curTrackEdit != null) {
-                _audioEngine.MoveTrack(_curTrackEdit.Position, 1);
+            if (_curTrackEdit == null) return;
+            
+            if (_audioEngine.MoveTrack(_curTrackEdit.Position, 1))
+            {
                 uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
+            }
+            else
+            {
+                ErrorMessage();
             }
         }
 
@@ -510,11 +527,50 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             var success = _audioEngine.ChangeRegionSizePos(_curRegionEdit, action);
-            if (!success && audioError != null) audioError.Play();
+            if (!success) ErrorMessage();
+        }
+
+        // Load & Save
+        
+        private void OnSaveComposition()
+        {
+            OnButtonStopClick();
+
+            try
+            {
+                var composition = _audioEngine.GetSaveData();
+                var json = JsonUtility.ToJson(composition);
+
+                //Debug.Log(Application.persistentDataPath);
+                var path = Application.persistentDataPath + "/composition.json";
+                File.WriteAllText(path, json);
+            }
+            catch (Exception e)
+            {
+                ErrorMessage(e.ToString());
+            }
+        }
+
+        private void OnLoadComposition()
+        {
+            OnButtonStopClick();
+            
+            var path = Application.persistentDataPath + "/composition.json";
+
+            try
+            {
+                var json = File.ReadAllText(path);
+                var composition = JsonUtility.FromJson<DataComposition>(json);
+                Debug.Log(composition.title);
+            }
+            catch (Exception e)
+            {
+                ErrorMessage(e.ToString());
+            }
         }
         
-        // PUBLIC METHODS
-
+        // Callback methods
+        
         private void CallbackTrackClick(int trackPos, uint clickAction)
         {
             //Debug.Log("CallbackTrackClick - track, action: "+trackPos+", "+clickAction);
@@ -533,8 +589,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     _audioEngine.DeleteTrack(_curTrackEdit);
                     break;
             }
-
-            //EventSystem.current.isFocused = false;
         }
         private void CallbackRegionClick(int trackPos, int regionStartPos)
         {
@@ -544,8 +598,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             _curRegionEdit = _audioEngine.GetRegion(trackPos, regionStartPos);
             if (_curRegionEdit != null) uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
-            
-            //EventSystem.current.SetSelectedGameObject(textVersion.gameObject);
+        }
+
+        // 
+        
+        private void ErrorMessage(string msg = null)
+        {
+            if (audioError != null) audioError.Play();
+
+            if (msg != null) Debug.LogWarning(msg);
         }
     }
 }
