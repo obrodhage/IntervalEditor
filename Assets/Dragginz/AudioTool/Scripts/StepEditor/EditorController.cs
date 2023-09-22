@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Dragginz.AudioTool.Scripts.DataModels;
 using UnityEngine;
 using Dragginz.AudioTool.Scripts.Includes;
@@ -16,6 +15,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
     public class EditorController : MonoBehaviour
     {
         [SerializeField] private TMP_Text textVersion;
+        [SerializeField] private TMP_Text textMessage;
         [SerializeField] private GameObject prefabTrackInfo;
         [SerializeField] private GameObject prefabBarHeader;
         [SerializeField] private GameObject prefabRegion;
@@ -47,6 +47,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private void Awake()
         {
             textVersion.text = Globals.Version;
+            textMessage.text = "";
             
             _uiControllerEditor = FindObjectOfType<UiControllerEditor>();
             if (_uiControllerEditor == null) {
@@ -314,17 +315,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         }
         
         // UI EVENTS
-
-        private void OnButtonDemoClick()
-        {
-            _audioEngine.CreateDemoProject();
-        }
-
-        private void OnButtonClearClick()
-        {
-            _audioEngine.ClearProject();
-        }
-
+        
         private void OnButtonAddTrackClick()
         {
             var instrument = _listInstrumentObjects[0];
@@ -350,6 +341,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit != null)
             {
                 OnButtonStopClick();
+                ShowMessage("");
                 
                 CreateRegionGameObject(track, _curRegionEdit, track.Instrument);
                 uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
@@ -360,11 +352,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         private void OnButtonPlayClick()
         {
+            ShowMessage("");
             _uiControllerEditor.AudioIsPlaying(_audioEngine.StartPlayback());
         }
         
         private void OnButtonStopClick()
         {
+            ShowMessage("");
             _audioEngine.StopPlayback();
             _uiControllerEditor.AudioIsPlaying(false);
         }
@@ -532,6 +526,33 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         // Load & Save
         
+        private void OnButtonDemoClick()
+        {
+            OnButtonStopClick();
+            
+            try
+            {
+                var demo = Resources.Load("Data/demo");
+                var composition = JsonUtility.FromJson<DataComposition>(demo.ToString());
+                
+                _audioEngine.CreateDemoProject(composition);
+                
+                ShowMessage("loading data from: Resources/Data/demo.json");
+            }
+            catch (Exception e)
+            {
+                ErrorMessage(e.ToString());
+            }
+        }
+
+        private void OnButtonClearClick()
+        {
+            ShowMessage("");
+            OnButtonStopClick();
+            
+            _audioEngine.ClearProject();
+        }
+
         private void OnSaveComposition()
         {
             OnButtonStopClick();
@@ -541,27 +562,31 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 var composition = _audioEngine.GetSaveData();
                 var json = JsonUtility.ToJson(composition);
 
-                //Debug.Log(Application.persistentDataPath);
-                var path = Application.persistentDataPath + "/composition.json";
-                File.WriteAllText(path, json);
+                var filePath = Application.persistentDataPath + "/composition.json";
+                File.WriteAllText(filePath, json);
+                
+                ShowMessage("saving data to: " + filePath);
             }
             catch (Exception e)
             {
                 ErrorMessage(e.ToString());
             }
         }
-
+        
         private void OnLoadComposition()
         {
-            OnButtonStopClick();
+            var loadData = new DataComposition();
             
-            var path = Application.persistentDataPath + "/composition.json";
+            OnButtonStopClick();
+
+            var filePath= Application.persistentDataPath + "/composition.json";
 
             try
             {
-                var json = File.ReadAllText(path);
-                var composition = JsonUtility.FromJson<DataComposition>(json);
-                Debug.Log(composition.title);
+                var json = File.ReadAllText(filePath);
+                loadData = JsonUtility.FromJson<DataComposition>(json);
+                
+                ShowMessage("loading data from: " + filePath);
             }
             catch (Exception e)
             {
@@ -576,6 +601,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             //Debug.Log("CallbackTrackClick - track, action: "+trackPos+", "+clickAction);
 
             OnButtonStopClick();
+            ShowMessage("");
             
             _curTrackEdit = _audioEngine.GetTrack(trackPos);
             if (_curTrackEdit == null) return;
@@ -595,6 +621,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             //Debug.Log("CallbackRegionClick - track, region: "+trackPos+", "+regionStartPos);
 
             OnButtonStopClick();
+            ShowMessage("");
             
             _curRegionEdit = _audioEngine.GetRegion(trackPos, regionStartPos);
             if (_curRegionEdit != null) uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
@@ -606,7 +633,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (audioError != null) audioError.Play();
 
-            if (msg != null) Debug.LogWarning(msg);
+            if (!string.IsNullOrEmpty(msg)) ShowMessage(msg);
+        }
+
+        private void ShowMessage(string msg)
+        {
+            textMessage.text = msg;
+            Debug.Log(msg);
         }
     }
 }

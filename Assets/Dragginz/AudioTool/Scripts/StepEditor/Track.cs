@@ -86,9 +86,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
         }
     
-        private void MuteTrackAndRegions()
+        public void MuteTrackAndRegions(bool mute)
         {
-            Muted = !Muted;
+            Muted = mute;
             foreach (var r in Regions) {
                 r.Mute(Muted);
             }
@@ -127,7 +127,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void OnMuteClick()
         {
-            MuteTrackAndRegions();
+            MuteTrackAndRegions(!Muted);
         }
 
         private void OnDeleteClick()

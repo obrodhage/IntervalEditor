@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
   m_Name: Pad
   m_EditorClassIdentifier: 
+  uniqueId: 0
   name: Pad
   sortOrder: 0
-  type: 0
+  type: 2
   loadDirName: Audio/Pad
   noteFileNames:
   - pad_o1_v100_0

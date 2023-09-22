@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
+  m_Name: BassMuted
+  m_EditorClassIdentifier: 
+  uniqueId: 5
+  name: Bass Muted
+  sortOrder: 5
+  type: 0
+  loadDirName: Audio/BassMuted
+  noteFileNames:
+  - bass-muted_o1_v100_0
+  - bass-muted_o1_v100_1
+  - bass-muted_o1_v100_2
+  - bass-muted_o1_v100_3
+  - bass-muted_o1_v100_4
+  - bass-muted_o1_v100_5
+  - bass-muted_o1_v100_6
+  - bass-muted_o1_v100_7
+  - bass-muted_o1_v100_8
+  - bass-muted_o1_v100_9
+  - bass-muted_o1_v100_10
+  - bass-muted_o1_v100_11
+  - bass-muted_o2_v100_0
+  - bass-muted_o2_v100_1
+  - bass-muted_o2_v100_2
+  - bass-muted_o2_v100_3
+  - bass-muted_o2_v100_4
+  - bass-muted_o2_v100_5
+  - bass-muted_o2_v100_6
+  - bass-muted_o2_v100_7
+  - bass-muted_o2_v100_8
+  - bass-muted_o2_v100_9
+  - bass-muted_o2_v100_10
+  - bass-muted_o2_v100_11
+  - bass-muted_o3_v100_0
+  - bass-muted_o3_v100_1
+  - bass-muted_o3_v100_2
+  - bass-muted_o3_v100_3
+  - bass-muted_o3_v100_4
+  - bass-muted_o3_v100_5
+  - bass-muted_o3_v100_6
+  - bass-muted_o3_v100_7
+  - bass-muted_o3_v100_8
+  - bass-muted_o3_v100_9
+  - bass-muted_o3_v100_10
+  - bass-muted_o3_v100_11
+  - bass-muted_o4_v100_0
+  octaves: 010000000200000003000000
+  defaultColor: {r: 0.8207547, g: 0.20518868, b: 0.2646621, a: 1}
+  highOctave: 0
+  rootNoteOnly: 0
+  defaultVolume: 0.5
+  defaultPan: 0.5
+  bpm: 120
+  beats: 8
+  sampleRate: 48000
+  canLoop: 0
+  beatLoopStart: 0
+  beatLoopEnd: 0

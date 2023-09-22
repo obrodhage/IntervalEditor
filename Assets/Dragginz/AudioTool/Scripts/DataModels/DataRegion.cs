@@ -13,11 +13,11 @@ namespace Dragginz.AudioTool.Scripts.DataModels
         public int octave;
         public int type;
         public int note;
-        public bool highOctave;
-        public bool rootNoteOnly;
-        public float volume;
-        public float pan;
+        public int highOctave;
+        public int rootNoteOnly;
+        public int vol;
+        public int pan;
 
-        public DataArpeggiator dataArpeggiator;
+        public DataArpeggiator dataArp;
     }
 }

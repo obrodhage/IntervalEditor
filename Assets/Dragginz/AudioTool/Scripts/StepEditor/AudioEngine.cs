@@ -77,7 +77,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public DataComposition GetSaveData()
         {
             var data = new DataComposition {
-                title = "Test Composition",
+                title = "Demo",
                 bpm = (int)_curBpm,
                 tracks = new DataTrack[Tracks.Count]
             };
@@ -88,7 +88,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 var track = new DataTrack {
                     pos = t.Position,
                     instrument = t.Instrument.uniqueId,
-                    muted = t.Muted,
+                    muted = t.Muted ? 1 : 0,
                     reverbFilter = t.ReverbFilter,
                     regions = new DataRegion[t.Regions.Count]
                 };
@@ -105,11 +105,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         octave = r.playbackSettings.Octave,
                         type = r.playbackSettings.Type,
                         note = r.playbackSettings.Note,
-                        highOctave = r.playbackSettings.HighOctave,
-                        rootNoteOnly = r.playbackSettings.RootNoteOnly,
-                        volume = r.playbackSettings.Volume,
-                        pan = r.playbackSettings.Pan,
-                        dataArpeggiator = new DataArpeggiator
+                        highOctave = r.playbackSettings.HighOctave ? 1 : 0,
+                        rootNoteOnly = r.playbackSettings.RootNoteOnly ? 1: 0,
+                        vol = (int)(Mathf.Round(r.playbackSettings.Volume * 100.0f) * 0.1f),
+                        pan = (int)(Mathf.Round(r.playbackSettings.Pan * 100.0f) * 0.1f),
+                        dataArp = new DataArpeggiator
                         {
                             octaves = r.playbackSettings.arpData.octaves,
                             start = r.playbackSettings.arpData.start,
@@ -127,14 +127,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             return data;
         }
         
-        public void CreateDemoProject()
+        public void CreateDemoProject(DataComposition dataComposition)
         {
             ClearProject();
             
-            var tracks = CreateTracksAndRegions();
+            var tracks = CreateTracksAndRegions(dataComposition);
             CreateAudioForTracks(tracks);
         }
-
+        
         public void ClearProject()
         {
             while (Tracks.Count > 0)
@@ -267,7 +267,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     if (r.startPosBeats == updateRegion.startPosBeats)
                     {
                         r.SetChordData(updateRegion.playbackSettings.Key, updateRegion.playbackSettings.Interval, updateRegion.playbackSettings.Octave);
-                        r.SetPatternData(-1, updateRegion.playbackSettings.Note); //updateRegion.playbackSettings.Pattern
+                        r.playbackSettings.Note = updateRegion.playbackSettings.Note;
                         r.playbackSettings.Type = updateRegion.playbackSettings.Type;
                         r.playbackSettings.Volume = updateRegion.playbackSettings.Volume;
                         r.playbackSettings.Pan = updateRegion.playbackSettings.Pan;
@@ -277,7 +277,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         var chord = _listChords[r.playbackSettings.Interval].name;
                         r.RegionUi.UpdateValues(key, chord);
                         if (t.Instrument.type != InstrumentType.Looper) {
-                            r.CreatePianoRoll(_intervals); //, _listPatterns);
+                            r.CreatePianoRoll(_intervals);
                         }
                         break;
                     }
@@ -564,6 +564,61 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         // Demo Project
         
+        private List<Track> CreateTracksAndRegions(DataComposition data)
+        {
+            var tracks = new List<Track>();
+
+            for (var i = 0; i < data.tracks.Length; ++i)
+            {
+                var dataTrack = data.tracks[i];
+                
+                var track = new Track();
+                var instrument = GetSoInstrumentFromUniqueId(dataTrack.instrument);
+                if (instrument == null) continue;
+                
+                track.Init(i, instrument);
+                for (var j = 0; j < dataTrack.regions.Length; ++j)
+                {
+                    var dataRegion = dataTrack.regions[j];
+                        
+                    var region = new Region();
+                    region.Init(dataRegion.pos, dataRegion.beats, track, BeatsPerSec);
+                    region.SetChordData(dataRegion.key, dataRegion.interval, dataRegion.octave);
+                    region.playbackSettings.RootNoteOnly = dataRegion.rootNoteOnly == 1;
+                    region.playbackSettings.HighOctave = dataRegion.highOctave == 1;
+                    region.playbackSettings.Type = dataRegion.type;
+                    region.playbackSettings.Note = dataRegion.note;
+                    region.playbackSettings.Volume = dataRegion.vol / 10f;
+                    region.playbackSettings.Pan = dataRegion.pan / 10f;
+                    region.SetArpData(dataRegion.dataArp);
+                    track.AddRegion(region);
+                }
+                tracks.Add(track);
+
+                _editorController.CreateTrackGameObject(track);
+                foreach (var region in track.Regions) {
+                    _editorController.CreateRegionGameObject(track, region, instrument);
+                }
+
+                if (dataTrack.muted == 1) track.MuteTrackAndRegions(true);
+            }
+
+            return tracks;
+        }
+
+        private ScriptableObjectInstrument GetSoInstrumentFromUniqueId(int id)
+        {
+            ScriptableObjectInstrument instrument = null;
+
+            foreach (var inst in _listInstruments)
+            {
+                if (inst.uniqueId != id) continue;
+                instrument = inst;
+                break;
+            }
+            return instrument;
+        }
+        
         private List<Track> CreateTracksAndRegions()
         {
             var tracks = new List<Track>();
@@ -620,7 +675,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     var region4 = new Region();
                     region4.Init(0, Globals.DefaultRegionBeats, track, BeatsPerSec);
                     region4.SetChordData(0, 0, 1);
-                    region4.SetPatternData(0, 0);
+                    region4.playbackSettings.Note = 0;
                     region4.playbackSettings.RootNoteOnly = true;
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
@@ -628,21 +683,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     region4 = new Region();
                     region4.Init(8, Globals.DefaultRegionBeats, track, BeatsPerSec);
                     region4.SetChordData(5, 6, 1);
-                    region4.SetPatternData(0, 1);
+                    region4.playbackSettings.Note = 1;
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
                     //
                     region4 = new Region();
                     region4.Init(16, Globals.DefaultRegionBeats / 2, track, BeatsPerSec);
                     region4.SetChordData(7, 10, 2);
-                    region4.SetPatternData(0, 2);
+                    region4.playbackSettings.Note = 2;
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
                     //
                     region4 = new Region();
                     region4.Init(20, Globals.DefaultRegionBeats, track, BeatsPerSec);
                     region4.SetChordData(7, 0, 2);
-                    region4.SetPatternData(0, 2);
+                    region4.playbackSettings.Note = 2;
                     region4.playbackSettings.HighOctave = true;
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
@@ -650,7 +705,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     region4 = new Region();
                     region4.Init(28, Globals.DefaultRegionBeats, track, BeatsPerSec);
                     region4.SetChordData(0, 0, 0);
-                    region4.SetPatternData(0, 0);
+                    region4.playbackSettings.Note = 0;
                     region4.playbackSettings.HighOctave = true;
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
@@ -660,14 +715,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     var region5 = new Region();
                     region5.Init(16, Globals.DefaultRegionBeats / 2, track, BeatsPerSec);
                     region5.SetChordData(7, 10, 0);
-                    region5.SetPatternData(0, 0);
+                    region5.playbackSettings.Note = 0;
                     region5.playbackSettings.Type = (int)InstrumentType.Arpeggiator;
                     track.AddRegion(region5);
                     //
                     region5 = new Region();
                     region5.Init(20, Globals.DefaultRegionBeats, track, BeatsPerSec);
                     region5.SetChordData(7, 0, 0);
-                    region5.SetPatternData(1, 0);
+                    region5.playbackSettings.Note = 0;
                     region5.playbackSettings.Type = (int)InstrumentType.Arpeggiator;
                     track.AddRegion(region5);
                 }
@@ -707,7 +762,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (track.Instrument.type == InstrumentType.Looper) continue;
                 
                 foreach (var region in track.Regions) {
-                    region.CreatePianoRoll(_intervals); //, _listPatterns);
+                    region.CreatePianoRoll(_intervals);
                 }
             }
         }

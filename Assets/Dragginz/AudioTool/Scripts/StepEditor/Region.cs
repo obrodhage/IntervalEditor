@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Dragginz.AudioTool.Scripts.DataModels;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using Dragginz.AudioTool.Scripts.StepEditor.UI;
 using UnityEngine;
@@ -52,12 +53,19 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             playbackSettings.Octave = o;
         }
 
-        public void SetPatternData(int p, int n)
+        /*public void SetPatternData(int n)
         {
-            //playbackSettings.Pattern = p;
             playbackSettings.Note = n;
-        }
+        }*/
 
+        public void SetArpData(DataArpeggiator dataArp)
+        {
+            playbackSettings.arpData.octaves = dataArp.octaves;
+            playbackSettings.arpData.start = dataArp.start;
+            playbackSettings.arpData.end = dataArp.end;
+            playbackSettings.arpData.type = dataArp.type;
+        }
+        
         public void UpdateLength(int length, float beatsPerSec)
         {
             beats = length;

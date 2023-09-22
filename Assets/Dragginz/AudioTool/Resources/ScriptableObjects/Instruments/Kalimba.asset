@@ -15,7 +15,7 @@ MonoBehaviour:
   uniqueId: 4
   name: Kalimba
   sortOrder: 4
-  type: 1
+  type: 0
   loadDirName: Audio/Kalimba
   noteFileNames:
   - kalimba_o2_v100_0

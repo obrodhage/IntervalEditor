@@ -15,7 +15,7 @@ MonoBehaviour:
   uniqueId: 3
   name: Piano
   sortOrder: 3
-  type: 1
+  type: 0
   loadDirName: Audio/Piano
   noteFileNames:
   - piano_o1_v100_0

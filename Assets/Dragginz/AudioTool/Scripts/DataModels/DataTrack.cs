@@ -7,7 +7,7 @@ namespace Dragginz.AudioTool.Scripts.DataModels
     {
         public int pos;
         public int instrument;
-        public bool muted;
+        public int muted;
         public int reverbFilter;
         
         public DataRegion[] regions;
