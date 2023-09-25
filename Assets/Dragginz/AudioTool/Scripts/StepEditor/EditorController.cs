@@ -80,6 +80,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             LoadIntervalsFromScriptableObjects();
             LoadInstrumentsFromScriptableObjects();
             
+            _uiControllerEditor.PopulateInstrumentsDropDown(_listInstrumentObjects);
+            
             uiControllerTrackInfo.PopulateInstrumentsDropDown(_listInstrumentObjects);
 
             uiControllerRegionInfo.PopulateLengthsDropDown();
@@ -316,12 +318,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         // UI EVENTS
         
-        private void OnButtonAddTrackClick()
+        private void OnButtonAddTrackClick(int instrument)
         {
-            var instrument = _listInstrumentObjects[0];
+            var soInstrument = _listInstrumentObjects[instrument];
             
             var track = new Track();
-            track.Init(_audioEngine.Tracks.Count, instrument);
+            track.Init(_audioEngine.Tracks.Count, soInstrument);
             
             CreateTrackGameObject(track);
             
@@ -575,8 +577,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         private void OnLoadComposition()
         {
-            var loadData = new DataComposition();
-            
             OnButtonStopClick();
 
             var filePath= Application.persistentDataPath + "/composition.json";
@@ -584,7 +584,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             try
             {
                 var json = File.ReadAllText(filePath);
-                loadData = JsonUtility.FromJson<DataComposition>(json);
+                var composition = JsonUtility.FromJson<DataComposition>(json);
+                
+                _audioEngine.CreateDemoProject(composition);
                 
                 ShowMessage("loading data from: " + filePath);
             }

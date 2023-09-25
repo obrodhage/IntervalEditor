@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Dragginz.AudioTool.Scripts.Includes;
+using Dragginz.AudioTool.Scripts.ScriptableObjects;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -17,6 +20,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private Button buttonLoad;
         [SerializeField] private Button buttonSave;
         
+        [SerializeField] private TMP_Dropdown dropDownInstruments;
         [SerializeField] private Button buttonAddTrack;
         [SerializeField] private Button buttonPlay;
         [SerializeField] private Button buttonStop;
@@ -32,7 +36,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         [SerializeField] private RectTransform rectTransformRegions;
         
-        public delegate void ButtonAddTrackEvent();
+        public delegate void ButtonAddTrackEvent(int instrument);
         public event ButtonAddTrackEvent OnButtonAddTrackEvent;
         
         public delegate void ActionAddRegionEvent();
@@ -58,6 +62,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         
         public float regionContentOffset;
+
+        private int _curInstrument;
         
         // Getters
         public GameObject GoContentTracks => goContentTracks;
@@ -71,11 +77,23 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             AudioIsPlaying(false);
         }
 
+        public void PopulateInstrumentsDropDown(List<ScriptableObjectInstrument> sortedListInstruments)
+        {
+            var optionData = new List<TMP_Dropdown.OptionData>();
+            foreach (var instrument in sortedListInstruments) {
+                optionData.Add(new TMP_Dropdown.OptionData(instrument.name));
+            }
+            dropDownInstruments.options = optionData;
+        }
+
         public void Init()
         {
             scrollbarTracks.value = 1;
             scrollbarBeats.value = 0;
             
+            _curInstrument = dropDownInstruments.value = 0;
+            
+            dropDownInstruments.onValueChanged.AddListener(delegate { OnDropDownInstrumentChanged(); });
             buttonAddTrack.onClick.AddListener(OnButtonAddTrackClick);
             buttonPlay.onClick.AddListener(OnButtonPlayClick);
             buttonStop.onClick.AddListener(OnButtonStopClick);
@@ -87,8 +105,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             scrollbarBeats.onValueChanged.AddListener(OnScrollbarBeatsChange);
         }
 
+        private void OnDropDownInstrumentChanged() {
+            _curInstrument = dropDownInstruments.value;
+        }
         private void OnButtonAddTrackClick() {
-            OnButtonAddTrackEvent?.Invoke();
+            OnButtonAddTrackEvent?.Invoke(_curInstrument);
         }
         private void OnButtonPlayClick() {
             OnButtonPlayEvent?.Invoke();
