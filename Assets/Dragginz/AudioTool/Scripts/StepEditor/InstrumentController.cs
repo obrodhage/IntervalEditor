@@ -82,6 +82,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 TimeLoopEnd = (_soInstrument.beatLoopEnd-1) / beatsPerSecond
             };
 
+            //Debug.Log("SampleLoopStart: "+Settings.SampleLoopStart);
+            //Debug.Log("SampleLoopEnd: "+Settings.SampleLoopEnd);
+            
             _audioClips = new List<AudioClip>();
             
             foreach (var fileName in _soInstrument.noteFileNames)
@@ -94,6 +97,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     _audioClips.Add(audioClip);
                 }
             }
+            
+            //Debug.Log("_audioClips.length: "+_audioClips.Count);
         }
 
         private void CreateAudioSourceComponents()
@@ -143,6 +148,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public void PlayIntervals(int key, List<int> intervals, Globals.InstrumentSettings playbackSettings,
             int numInstrumentsSoloed, double startDspTime, double curDspTime)
         {
+            if (_audioClips.Count <= 0) return;
+            
             StopAllSources();
         
             _curIntervals = intervals;
@@ -164,11 +171,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             for (var i = 0; i < _numCurIntervals; ++i)
             {
+                if (i >= _singleNotes.Count) break;
+                
                 var index = (playbackSettings.Octave * 12) + key + _curIntervals[i];
                 if (index >= _audioClips.Count)
                 {
+                    Debug.Log("index out of bounds - cannot play interval "+_curIntervals[i]);
                     _singleNotes[i].AudioSource.enabled = false;
-                    //Debug.Log("index out of bounds - cannot play interval "+_curIntervals[i]);
                 }
                 else
                 {
@@ -251,6 +260,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             foreach (var singleNote in _singleNotes)
             {
                 singleNote.AudioSource.timeSamples = (int)Settings.SampleLoopStart;
+                //Debug.Log(singleNote.AudioSource.clip.samples);
             }
         
             LoopDspTime = curDspTime + (Settings.TimeLoopEnd - Settings.TimeLoopStart);
@@ -260,6 +270,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             foreach (var singleNote in _singleNotes)
             {
+                //Debug.Log((int)Settings.SampleLoopEnd);
                 singleNote.AudioSource.timeSamples = (int)Settings.SampleLoopEnd;
             }
             

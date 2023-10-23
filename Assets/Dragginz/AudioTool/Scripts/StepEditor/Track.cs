@@ -247,6 +247,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 {
                     if (region.playbackSettings.Type == (int)InstrumentType.Looper)
                     {
+                        //Debug.Log("skip to end");
                         InstrumentController.SkipToEndBeat(curDspTime); // let loopers ring out
                     }
 
@@ -265,6 +266,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     {
                         if (curDspTime >= InstrumentController.LoopDspTime)
                         {
+                            //Debug.Log("loop");
                             InstrumentController.LoopBack(curDspTime);
                         }
                     }
@@ -314,6 +316,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         public void StopPlayback()
         {
+            //Debug.Log("StopPlayback");
+            
             donePlaying = true;
             curRegionIndex = 0;
 

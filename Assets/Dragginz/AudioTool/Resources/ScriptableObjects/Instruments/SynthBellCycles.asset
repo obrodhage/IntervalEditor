@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
+  m_Name: SynthBellCycles
+  m_EditorClassIdentifier: 
+  uniqueId: 6
+  name: SynthBellCycles
+  sortOrder: 6
+  type: 2
+  loadDirName: Audio/SynthBellCycles
+  noteFileNames:
+  - sbc_o1_v100_0
+  - sbc_o1_v100_1
+  - sbc_o1_v100_2
+  - sbc_o1_v100_3
+  - sbc_o1_v100_4
+  - sbc_o1_v100_5
+  - sbc_o1_v100_6
+  - sbc_o1_v100_7
+  - sbc_o1_v100_8
+  - sbc_o1_v100_9
+  - sbc_o1_v100_10
+  - sbc_o1_v100_11
+  - sbc_o2_v100_0
+  - sbc_o2_v100_1
+  - sbc_o2_v100_2
+  - sbc_o2_v100_3
+  - sbc_o2_v100_4
+  - sbc_o2_v100_5
+  - sbc_o2_v100_6
+  - sbc_o2_v100_7
+  - sbc_o2_v100_8
+  - sbc_o2_v100_9
+  - sbc_o2_v100_10
+  - sbc_o2_v100_11
+  - sbc_o3_v100_0
+  octaves: 0100000002000000
+  defaultColor: {r: 0.4245283, g: 0.29674053, b: 0.16620682, a: 1}
+  highOctave: 0
+  rootNoteOnly: 1
+  defaultVolume: 0.75
+  defaultPan: 0.5
+  bpm: 120
+  beats: 8
+  sampleRate: 48000
+  canLoop: 1
+  beatLoopStart: 1
+  beatLoopEnd: 5

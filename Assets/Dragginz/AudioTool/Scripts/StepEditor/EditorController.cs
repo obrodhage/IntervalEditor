@@ -641,7 +641,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private void ShowMessage(string msg)
         {
             textMessage.text = msg;
-            Debug.Log(msg);
+            if (!string.IsNullOrEmpty(msg)) Debug.Log(msg);
         }
     }
 }
