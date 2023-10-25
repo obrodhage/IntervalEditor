@@ -184,9 +184,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 }
             }
 
-            var s = "";
-            foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
-            Debug.Log("three note step arp: "+s);
+            //var s = "";
+            //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
+            //Debug.Log("three note step arp: "+s);
             
             return pianoRoll;
         }
@@ -275,9 +275,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 }
             }
 
-            var s = "";
-            foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
-            Debug.Log("three note step arp: "+s);
+            //var s = "";
+            //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
+            //Debug.Log("three note step arp: "+s);
             
             return pianoRoll;
         }

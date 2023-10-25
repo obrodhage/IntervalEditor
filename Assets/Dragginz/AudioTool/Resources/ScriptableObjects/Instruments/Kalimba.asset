@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
   m_Name: Kalimba
   m_EditorClassIdentifier: 
-  uniqueId: 4
+  uniqueId: 7
   name: Kalimba
-  sortOrder: 4
+  sortOrder: 7
   type: 0
   loadDirName: Audio/Kalimba
   noteFileNames:

@@ -33,7 +33,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private Toggle toggleRootNoteOnly;
         [SerializeField] private Toggle toggleHighOctave;
         [SerializeField] private Slider sliderVolume;
+        [SerializeField] private TMP_Text labelVolumeValue;
         [SerializeField] private Slider sliderPan;
+        [SerializeField] private TMP_Text labelPanValue;
         
         [SerializeField] private TMP_Dropdown dropDownLength;
         [SerializeField] private Button buttonNudgeLeft;
@@ -130,7 +132,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             toggleRootNoteOnly.onValueChanged.AddListener(delegate { OnToggleRootNoteOnlyChanged(toggleRootNoteOnly.isOn); });
         
             sliderVolume.onValueChanged.AddListener(delegate { OnSliderVolumeChanged(sliderVolume.value); });
-            sliderPan.onValueChanged.AddListener(delegate { OnSliderPanChanged(sliderVolume.value); });
+            sliderPan.onValueChanged.AddListener(delegate { OnSliderPanChanged(sliderPan.value); });
             
             buttonNudgeLeft.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.NudgeLeft); });
             buttonNudgeRight.onClick.AddListener(delegate { OnButtonRegionSizeClicked(Globals.RegionSizeControls.NudgeRight); });
@@ -316,10 +318,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
         private void OnSliderVolumeChanged(float value) {
             if (!_uiIsUpdating) OnSliderVolumeEvent?.Invoke(value);
+            labelVolumeValue.text = ((int)(value * 100)).ToString();
         }
         
         private void OnSliderPanChanged(float value) {
             if (!_uiIsUpdating) OnSliderPanEvent?.Invoke(value);
+            labelPanValue.text = ((int)(value * 100)).ToString();
         }
         
         private void OnArpeggiatorDataChanged(ArpeggiatorData data) {

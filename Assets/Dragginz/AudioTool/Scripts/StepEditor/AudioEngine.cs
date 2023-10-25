@@ -285,6 +285,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
         }
 
+        public void UpdateRegionVolume(Region region, float value)
+        {
+            region.playbackSettings.Volume = value;
+        }
+        
         public void UpdateRegionArpeggiatorData(Region updateRegion, ArpeggiatorData data)
         {
             foreach (var t in Tracks)

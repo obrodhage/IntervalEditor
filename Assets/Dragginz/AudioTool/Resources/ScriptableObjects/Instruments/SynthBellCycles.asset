@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 602af3209bb254465b7be0e948fbd7f1, type: 3}
   m_Name: SynthBellCycles
   m_EditorClassIdentifier: 
-  uniqueId: 6
-  name: SynthBellCycles
-  sortOrder: 6
+  uniqueId: 0
+  name: Synth Cycles
+  sortOrder: 0
   type: 2
   loadDirName: Audio/SynthBellCycles
   noteFileNames:
@@ -44,7 +44,7 @@ MonoBehaviour:
   - sbc_o2_v100_11
   - sbc_o3_v100_0
   octaves: 0100000002000000
-  defaultColor: {r: 0.4245283, g: 0.29674053, b: 0.16620682, a: 1}
+  defaultColor: {r: 0.5188679, g: 0.38714844, b: 0.24719651, a: 1}
   highOctave: 0
   rootNoteOnly: 1
   defaultVolume: 0.75

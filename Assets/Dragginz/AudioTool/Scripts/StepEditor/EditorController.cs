@@ -484,7 +484,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Volume = value;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            //_audioEngine.UpdateRegion(_curRegionEdit);
+            
+            //_audioEngine.UpdateRegionVolume(_curRegionEdit, value);
         }
         
         private void RegionInfoPanChange(float value)
@@ -492,7 +494,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Pan = value;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            //_audioEngine.UpdateRegion(_curRegionEdit);
         }
         
         private void RegionInfoRootNoteOnlyChange(bool value)
