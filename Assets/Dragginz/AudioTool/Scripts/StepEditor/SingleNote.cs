@@ -10,7 +10,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
     
         public AudioSource AudioSource;
 
-        private bool IsAudible { get; set; }
+        public bool IsAudible { get; private set; }
 
         public void Init(AudioSource audioSource)
         {

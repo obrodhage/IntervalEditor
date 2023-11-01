@@ -80,15 +80,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             regionEndTime = regionStartTime + (beats / beatsPerSec);
         }
         
-        public void CreatePianoRoll(List<List<int>> intervals) //, List<ScriptableObjectPattern> soPatterns)
+        public void CreatePianoRoll(List<List<int>> intervals)
         {
             PianoRoll?.Clear();
             
             if (playbackSettings.Type == (int)InstrumentType.Arpeggiator)
             {
-                PianoRoll = CreateArpPianoRoll(intervals); //, soPatterns[playbackSettings.Pattern]);
+                PianoRoll = CreateArpPianoRoll(intervals);
             }
-            else
+            else if (playbackSettings.Type != (int)InstrumentType.Looper)
             {
                 PianoRoll = CreateChordPianoRoll(intervals);
             }
@@ -181,7 +181,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             playbackSettings.arpData.listPattern = listPattern;
             
 
-            Debug.Log("Track "+trackPos+", region "+startPosBeats+$" -> arpeggiator pattern: {string.Join(",", listPattern.ToArray())}");
+            //Debug.Log("Track "+trackPos+", region "+startPosBeats+$" -> arpeggiator pattern: {string.Join(",", listPattern.ToArray())}");
 
             return playbackSettings.arpData.type switch
             {
@@ -202,7 +202,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 Key = (changeKeys ? 0 : playbackSettings.Key),
                 Interval = (changeKeys ? 0 : playbackSettings.Interval),
                 Octave = (changeKeys ? 0 : playbackSettings.Octave),
-                Type = (instrument.type == InstrumentType.Looper) ? 2 : 0,
+                Type = (instrument.type == InstrumentType.Looper) ? 3 : 0,
                 Note = 0,
                 arpData = new ArpeggiatorData(),
                 //CanLoop = instrument.type == InstrumentType.Looper,

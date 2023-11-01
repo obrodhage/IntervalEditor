@@ -7,6 +7,7 @@ namespace Dragginz.AudioTool.Scripts.ScriptableObjects
     {
         Chord,
         Arpeggiator,
+        MelodyMaker,
         Looper
     }
 

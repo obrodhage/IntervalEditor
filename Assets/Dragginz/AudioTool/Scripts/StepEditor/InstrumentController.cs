@@ -144,6 +144,28 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             LoadAudioClipsAndSettings();
             CreateAudioSourceComponents();
         }
+
+        public void SetVolumeOfCurrentRegion(Region updateRegion)
+        {
+            if (_singleNotes == null) return;
+            
+            for (var i = 0; i < _numSingleNotes; ++i) {
+                if (_singleNotes[i].IsAudible) {
+                    _singleNotes[i].AudioSource.volume = updateRegion.playbackSettings.Volume;
+                }
+            }
+        }
+        
+        public void SetPanOfCurrentRegion(Region updateRegion)
+        {
+            if (_singleNotes == null) return;
+            
+            for (var i = 0; i < _numSingleNotes; ++i) {
+                if (_singleNotes[i].IsAudible) {
+                    _singleNotes[i].AudioSource.panStereo = Mathf.Lerp(-1f, 1f, updateRegion.playbackSettings.Pan);
+                }
+            }
+        }
         
         public void PlayIntervals(int key, List<int> intervals, Globals.InstrumentSettings playbackSettings,
             int numInstrumentsSoloed, double startDspTime, double curDspTime)

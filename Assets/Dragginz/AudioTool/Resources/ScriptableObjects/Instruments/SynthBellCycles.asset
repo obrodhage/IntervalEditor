@@ -15,7 +15,7 @@ MonoBehaviour:
   uniqueId: 0
   name: Synth Cycles
   sortOrder: 0
-  type: 2
+  type: 3
   loadDirName: Audio/SynthBellCycles
   noteFileNames:
   - sbc_o1_v100_0

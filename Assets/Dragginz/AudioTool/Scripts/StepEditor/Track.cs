@@ -4,7 +4,6 @@ using System.Linq;
 using Dragginz.AudioTool.Scripts.Includes;
 using Dragginz.AudioTool.Scripts.ScriptableObjects;
 using Dragginz.AudioTool.Scripts.StepEditor.UI;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor
@@ -18,6 +17,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public List<Region> Regions;
 
         public int Position;
+        public int EndRegionBeat;
         public ScriptableObjectInstrument Instrument;
 
         private int curRegionIndex;
@@ -37,6 +37,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             Regions = new List<Region>();
 
             Position = pos;
+            EndRegionBeat = 0;
             Instrument = inst;
 
             Muted = false;
@@ -224,6 +225,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             foreach (var region in Regions) {
                 region.isPlaying = false;
             }
+            
+            EndRegionBeat = Regions[^1].startPosBeats + Regions[^1].beats;
             
             donePlaying = false;
             curRegionIndex = 0;

@@ -24,6 +24,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private Button buttonAddTrack;
         [SerializeField] private Button buttonPlay;
         [SerializeField] private Button buttonStop;
+        [SerializeField] private Button buttonLoop;
         
         [SerializeField] private Scrollbar scrollbarTracks;
         [SerializeField] private Scrollbar scrollbarBeats;
@@ -48,6 +49,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void ButtonStopEvent();
         public event ButtonStopEvent OnButtonStopEvent;
     
+        public delegate void ButtonLoopEvent();
+        public event ButtonLoopEvent OnButtonLoopEvent;
+        
         public delegate void ButtonDemoEvent();
         public event ButtonDemoEvent OnButtonDemoEvent;
         
@@ -97,6 +101,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonAddTrack.onClick.AddListener(OnButtonAddTrackClick);
             buttonPlay.onClick.AddListener(OnButtonPlayClick);
             buttonStop.onClick.AddListener(OnButtonStopClick);
+            buttonLoop.onClick.AddListener(OnButtonLoopClick);
             buttonDemo.onClick.AddListener(OnButtonDemoClick);
             buttonClear.onClick.AddListener(OnButtonClearClick);
             buttonLoad.onClick.AddListener(OnButtonLoadClick);
@@ -116,6 +121,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         }
         private void OnButtonStopClick() {
             OnButtonStopEvent?.Invoke();
+        }
+        private void OnButtonLoopClick() {
+            OnButtonLoopEvent?.Invoke();
         }
         private void OnButtonDemoClick() {
             OnButtonDemoEvent?.Invoke();
@@ -150,6 +158,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonClear.interactable = !startPlayback;
         }
 
+        public void AudioIsLooping(bool loop)
+        {
+            buttonLoop.targetGraphic.color = loop ? Color.white : new Color(1,1,1,0.5f);
+        }
+        
         public Globals.MouseRegionBeatPos GetRegionBeatPos()
         {
             var pos = new Globals.MouseRegionBeatPos();

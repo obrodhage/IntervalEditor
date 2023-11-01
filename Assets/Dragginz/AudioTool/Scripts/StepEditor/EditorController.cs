@@ -107,6 +107,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _uiControllerEditor.OnButtonAddTrackEvent += OnButtonAddTrackClick;
             _uiControllerEditor.OnButtonPlayEvent += OnButtonPlayClick;
             _uiControllerEditor.OnButtonStopEvent += OnButtonStopClick;
+            _uiControllerEditor.OnButtonLoopEvent += OnButtonLoopClick;
             _uiControllerEditor.OnActionAddRegionEvent += OnActionAddRegion;
             
             uiControllerTrackInfo.OnDropDownInstrumentEvent += TrackInfoInstrumentChange;
@@ -365,6 +366,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _uiControllerEditor.AudioIsPlaying(false);
         }
         
+        private void OnButtonLoopClick()
+        {
+            _audioEngine.ToggleLoop();
+            _uiControllerEditor.AudioIsLooping(_audioEngine.loop);
+        }
+        
         //
         
         private void TrackInfoInstrumentChange(int instrument)
@@ -428,7 +435,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Key = key;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
         private void RegionInfoIntervalChange(int interval)
@@ -436,7 +443,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Interval = interval;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
         private void RegionInfoOctaveChange(int octave)
@@ -444,7 +451,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Octave = octave;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
         private void RegionInfoTypeChange(int type)
@@ -452,7 +459,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Type = type;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
             uiControllerRegionInfo.UpdateGroupVisibility(_curRegionEdit.playbackSettings);
         }
 
@@ -468,7 +475,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Note = note;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
         private void RegionInfoChordNoteChange(int note)
@@ -476,7 +483,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Note = note;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
         private void RegionInfoVolumeChange(float value)
@@ -484,9 +491,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Volume = value;
-            //_audioEngine.UpdateRegion(_curRegionEdit);
-            
-            //_audioEngine.UpdateRegionVolume(_curRegionEdit, value);
+            if (_curRegionEdit.isPlaying) {
+                _audioEngine.SetLiveVolume(_curRegionEdit);
+            }
         }
         
         private void RegionInfoPanChange(float value)
@@ -494,7 +501,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.Pan = value;
-            //_audioEngine.UpdateRegion(_curRegionEdit);
+            if (_curRegionEdit.isPlaying) {
+                _audioEngine.SetLivePan(_curRegionEdit);
+            }
         }
         
         private void RegionInfoRootNoteOnlyChange(bool value)
@@ -502,7 +511,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.RootNoteOnly = value;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
         private void RegionInfoHighOctaveChange(bool value)
@@ -510,7 +519,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _curRegionEdit.playbackSettings.HighOctave = value;
-            _audioEngine.UpdateRegion(_curRegionEdit);
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
         private void RegionInfoDeleteEvent()

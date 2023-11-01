@@ -20,13 +20,16 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private float _curBpm;
 
-        public float curBeat;
-
         private bool _isUpdatingInstrumentInfo;
 
         private double _startDspTime;
         private double _curDspTime;
 
+        private float _loopBeat;
+        
+        public float curBeat;
+        public bool loop;
+        
         // Getters
 
         private float BeatsPerSec { get; set; }
@@ -37,6 +40,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void Awake()
         {
+            loop = true;
+            
             _curBpm = 120.0f;
             BeatsPerSec = _curBpm / 60.0f;
 
@@ -51,6 +56,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
             
             _startDspTime = AudioSettings.dspTime;
+        }
+
+        public void ToggleLoop()
+        {
+            loop = !loop;
         }
         
         public void InitChordList(List<ScriptableObjectChord> sortedListChords)
@@ -160,11 +170,25 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _curDspTime = AudioSettings.dspTime;
 
             curBeat = (float) ((_curDspTime - _startDspTime) * BeatsPerSec);
-            //Debug.Log("_curBeat: "+_curBeat);
-            
-            foreach (var track in Tracks)
+
+            if (loop & curBeat >= _loopBeat)
             {
-                track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
+                curBeat = 0;
+                _startDspTime = AudioSettings.dspTime;
+                foreach (var track in Tracks)
+                {
+                    track.StopPlayback();
+                    track.PrepareForPlayback();
+                    track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
+                }
+                //Debug.Log("_curBeat: "+_curBeat);
+            }
+            else
+            {
+                foreach (var track in Tracks)
+                {
+                    track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
+                }
             }
         }
         
@@ -173,11 +197,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (IsPlaying) return false;
 
             IsPlaying = true;
-        
+            _loopBeat = 0;
+            
+            _startDspTime = AudioSettings.dspTime;
             _curDspTime = _startDspTime = AudioSettings.dspTime;
             foreach (var track in Tracks)
             {
                 track.PrepareForPlayback();
+                if (track.EndRegionBeat > _loopBeat) _loopBeat = track.EndRegionBeat;
+                
                 track.UpdatePlayback(_startDspTime, _curDspTime, _numInstrumentsSoloed);
             }
 
@@ -255,8 +283,40 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             return region;
         }
+
+        public void SetLiveVolume(Region updateRegion)
+        {
+            foreach (var t in Tracks)
+            {
+                if (t.Position == updateRegion.trackPos)
+                {
+                    t.InstrumentController.SetVolumeOfCurrentRegion(updateRegion);
+                    break;
+                }
+            }
+        }
+
+        public void SetLivePan(Region updateRegion)
+        {
+            foreach (var t in Tracks)
+            {
+                if (t.Position == updateRegion.trackPos)
+                {
+                    t.InstrumentController.SetPanOfCurrentRegion(updateRegion);
+                    break;
+                }
+            }
+        }
         
-        public void UpdateRegion(Region updateRegion)
+        public void UpdateRegionNew(Region updateRegion)
+        {
+            var key = Globals.Keys[updateRegion.playbackSettings.Key];
+            var chord = _listChords[updateRegion.playbackSettings.Interval].name;
+            updateRegion.RegionUi.UpdateValues(key, chord);
+            updateRegion.CreatePianoRoll(_intervals);
+        }
+        
+        public void UpdateRegionOld(Region updateRegion)
         {
             foreach (var t in Tracks)
             {
@@ -283,11 +343,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     }
                 }
             }
-        }
-
-        public void UpdateRegionVolume(Region region, float value)
-        {
-            region.playbackSettings.Volume = value;
         }
         
         public void UpdateRegionArpeggiatorData(Region updateRegion, ArpeggiatorData data)
@@ -468,7 +523,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 {
                     regionBeatPos = t.ValidateRegionPosAndSize(regionBeatPos);
                     break;
-                };
+                }
             }
 
             return regionBeatPos;
@@ -582,10 +637,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (instrument == null) continue;
                 
                 track.Init(i, instrument);
-                for (var j = 0; j < dataTrack.regions.Length; ++j)
+                foreach (var dataRegion in dataTrack.regions)
                 {
-                    var dataRegion = dataTrack.regions[j];
-                        
                     var region = new Region();
                     region.Init(dataRegion.pos, dataRegion.beats, track, BeatsPerSec);
                     region.SetChordData(dataRegion.key, dataRegion.interval, dataRegion.octave);
@@ -624,7 +677,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             return instrument;
         }
         
-        private List<Track> CreateTracksAndRegions()
+        /*private List<Track> CreateTracksAndRegions()
         {
             var tracks = new List<Track>();
             
@@ -715,7 +768,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     region4.playbackSettings.Type = (int)InstrumentType.Chord;
                     track.AddRegion(region4);
                 }
-                if (instCount is 5) // Kalimba
+                if (instCount is 5) // 
                 {
                     var region5 = new Region();
                     region5.Init(16, Globals.DefaultRegionBeats / 2, track, BeatsPerSec);
@@ -744,7 +797,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
 
             return tracks;
-        }
+        }*/
         
         private void CreateAudioForTracks(List<Track> tracks)
         {

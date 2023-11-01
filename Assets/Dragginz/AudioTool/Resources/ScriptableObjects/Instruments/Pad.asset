@@ -15,7 +15,7 @@ MonoBehaviour:
   uniqueId: 6
   name: Pad
   sortOrder: 6
-  type: 2
+  type: 3
   loadDirName: Audio/Pad
   noteFileNames:
   - pad_o1_v100_0
