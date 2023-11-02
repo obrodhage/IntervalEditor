@@ -29,6 +29,10 @@ namespace Dragginz.AudioTool.Scripts.Includes
             ExpandLeft,
             ExpandRight
         }
+
+        public static readonly int[] MajorScale = {
+            0, 2, 4, 5, 7, 9, 11, 12
+        };
         
         public static readonly string[] Keys = {
             "C",
@@ -54,7 +58,6 @@ namespace Dragginz.AudioTool.Scripts.Includes
             "16th Notes",
             "32nd Notes"
         };
-        
         public static readonly float[] ChordNotesPerBar = {
             0f,
             1f,
@@ -73,13 +76,27 @@ namespace Dragginz.AudioTool.Scripts.Includes
             "Full Note",
             "32nd Notes"
         };
-        
         public static readonly float[] ArpeggiatorNotesPerBar = {
             16f,
             8f,
             4f,
             2f,
             1f,
+            32f
+        };
+        
+        public static readonly string[] MelodyNotes = {
+            "1/2 Notes",
+            "1/4 Notes",
+            "8th Notes",
+            "16th Notes",
+            "32nd Notes"
+        };
+        public static readonly float[] MelodyNotesPerBar = {
+            2f,
+            4f,
+            8f,
+            16f,
             32f
         };
         
@@ -93,7 +110,8 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public int Type;
             public int Note;
 
-            public ArpeggiatorData arpData;
+            public ArpeggiatorData ArpData;
+            public MelodyMakerData MelodyData;
             
             public bool Solo;
             public bool HighOctave;
@@ -102,8 +120,6 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public float Volume;
             public float Pan;
             
-            //public bool CanLoop;
-        
             public double SampleLoopStart;
             public double SampleLoopEnd;
 
@@ -111,7 +127,7 @@ namespace Dragginz.AudioTool.Scripts.Includes
             public double TimeLoopEnd;
         }
 
-        public struct Note
+        public struct OneNote
         {
             public int Index;
         }
@@ -119,15 +135,15 @@ namespace Dragginz.AudioTool.Scripts.Includes
         public struct PianoRoll
         {
             public float PosTime;
-            public List<Note> Notes;
+            public List<OneNote> Notes;
         }
         
         public struct MouseRegionBeatPos
         {
-            public int trackPos;
-            public int regionStartPos;
-            public int numBeats;
-            public bool posIsValid;
+            public int TrackPos;
+            public int RegionStartPos;
+            public int NumBeats;
+            public bool PosIsValid;
         }
     }
 }

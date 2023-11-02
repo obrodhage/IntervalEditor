@@ -174,10 +174,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             localPos.x -= rectTransformRegionsContent.anchoredPosition.x; // add content offset
             localPos.y = Math.Abs(localPos.y - rect.height / 2);
             
-            pos.trackPos = (int)(localPos.y / Globals.PrefabTrackHeight);
-            pos.regionStartPos = (int)(localPos.x / Globals.PrefabBarBeatWidth - Globals.DefaultRegionBeats / 2);
-            pos.numBeats = Globals.DefaultRegionBeats;
-            pos.posIsValid = true;
+            pos.TrackPos = (int)(localPos.y / Globals.PrefabTrackHeight);
+            pos.RegionStartPos = (int)(localPos.x / Globals.PrefabBarBeatWidth - Globals.DefaultRegionBeats / 2);
+            pos.NumBeats = Globals.DefaultRegionBeats;
+            pos.PosIsValid = true;
             
             return pos;
         }

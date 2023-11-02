@@ -2,28 +2,29 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 {
-    public class UiControllerArpeggiator : MonoBehaviour
+    public class UiControllerMelodyMaker : MonoBehaviour
     {
         // UI Elements
         
         [SerializeField] private TMP_Dropdown dropDownOctaves;
-        [SerializeField] private TMP_Dropdown dropDownStart;
+        [SerializeField] private TMP_Dropdown dropDownMode;
         [SerializeField] private TMP_Dropdown dropDownEnd;
         [SerializeField] private TMP_Dropdown dropDownTypes;
         
         // Delegates
         
-        public delegate void DropDownArpeggiatorEvent(ArpeggiatorData data);
-        public event DropDownArpeggiatorEvent OnDropDownArpeggiatorEvent;
+        public delegate void DropDownMelodyMakerEvent(MelodyMakerData makerData);
+        public event DropDownMelodyMakerEvent OnDropDownMelodyMakerEvent;
         
         //
 
         private bool _uiIsUpdating;
         
-        private ArpeggiatorData _curData;
+        private MelodyMakerData _curMakerData;
         
         // Getters
 
@@ -31,15 +32,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
 
         private void Awake()
         {
-            _curData = new ArpeggiatorData();
+            _curMakerData = new MelodyMakerData();
 
             PopulateOctavesDropDown();
-            PopulateStartDropDown();
+            PopulateModeDropDown();
             PopulateEndDropDown();
             PopulateTypesDropDown();
             
             dropDownOctaves.onValueChanged.AddListener(delegate { OnDropDownOctaveChanged(); });
-            dropDownStart.onValueChanged.AddListener(delegate { OnDropDownStartChanged(); });
+            dropDownMode.onValueChanged.AddListener(delegate { OnDropDownStartChanged(); });
             dropDownEnd.onValueChanged.AddListener(delegate { OnDropDownEndChanged(); });
             dropDownTypes.onValueChanged.AddListener(delegate { OnDropDownTypeChanged(); });
         }
@@ -56,14 +57,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownOctaves.options = optionData;
         }
 
-        private void PopulateStartDropDown()
+        private void PopulateModeDropDown()
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
-            foreach (int i in Enum.GetValues(typeof(ArpStart))) {
-                var s = Enum.GetName(typeof(ArpStart), i);
+            foreach (int i in Enum.GetValues(typeof(MelodyMode))) {
+                var s = Enum.GetName(typeof(MelodyMode), i);
                 optionData.Add(new TMP_Dropdown.OptionData(s));
             }
-            dropDownStart.options = optionData;
+            dropDownMode.options = optionData;
         }
         
         private void PopulateEndDropDown()
@@ -79,8 +80,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         private void PopulateTypesDropDown()
         {
             var optionData = new List<TMP_Dropdown.OptionData>();
-            foreach (int i in Enum.GetValues(typeof(ArpType))) {
-                var s = Enum.GetName(typeof(ArpType), i);
+            foreach (int i in Enum.GetValues(typeof(MelodyType))) {
+                var s = Enum.GetName(typeof(MelodyType), i);
                 optionData.Add(new TMP_Dropdown.OptionData(s));
             }
             dropDownTypes.options = optionData;
@@ -89,43 +90,43 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         private void OnDropDownOctaveChanged()
         {
             if (_uiIsUpdating) return;
-            _curData.Octaves = dropDownOctaves.value;
-            OnDropDownArpeggiatorEvent?.Invoke(_curData);
+            _curMakerData.Octaves = dropDownOctaves.value;
+            OnDropDownMelodyMakerEvent?.Invoke(_curMakerData);
         }
         
         private void OnDropDownStartChanged()
         {
             if (_uiIsUpdating) return;
-            _curData.Start = dropDownStart.value;
-            OnDropDownArpeggiatorEvent?.Invoke(_curData);
+            _curMakerData.Mode = dropDownMode.value;
+            OnDropDownMelodyMakerEvent?.Invoke(_curMakerData);
         }
 
         private void OnDropDownEndChanged()
         {
             if (_uiIsUpdating) return;
-            _curData.End = dropDownEnd.value;
-            OnDropDownArpeggiatorEvent?.Invoke(_curData);
+            _curMakerData.End = dropDownEnd.value;
+            OnDropDownMelodyMakerEvent?.Invoke(_curMakerData);
         }
 
         private void OnDropDownTypeChanged()
         {
             if (_uiIsUpdating) return;
-            _curData.Type = dropDownTypes.value;
-            OnDropDownArpeggiatorEvent?.Invoke(_curData);
+            _curMakerData.Type = dropDownTypes.value;
+            OnDropDownMelodyMakerEvent?.Invoke(_curMakerData);
         }
 
         // Public Methods
         
-        public void ShowArpeggiatorData(ArpeggiatorData data)
+        public void ShowMelodyMakerData(MelodyMakerData makerData)
         {
             _uiIsUpdating = true;
 
-            _curData = data;
+            _curMakerData = makerData;
             
-            dropDownOctaves.value = _curData.Octaves;
-            dropDownStart.value = _curData.Start;
-            dropDownEnd.value = _curData.End;
-            dropDownTypes.value = _curData.Type;
+            dropDownOctaves.value = _curMakerData.Octaves;
+            dropDownMode.value = _curMakerData.Mode;
+            dropDownEnd.value = _curMakerData.End;
+            dropDownTypes.value = _curMakerData.Type;
             
             _uiIsUpdating = false;
         }

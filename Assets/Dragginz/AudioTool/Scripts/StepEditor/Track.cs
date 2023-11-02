@@ -139,7 +139,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public void AddRegion(Region region)
         {
             Regions.Add(region);
-            Regions = Regions.OrderBy(x => x.startPosBeats).ToList();
+            Regions = Regions.OrderBy(x => x.StartPosBeats).ToList();
         }
 
         public Globals.MouseRegionBeatPos ValidateRegionPosAndSize(Globals.MouseRegionBeatPos regionBeatPos)
@@ -147,15 +147,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             var numRegions = Regions.Count;
             var exitChecks = false;
 
-            if (regionBeatPos.regionStartPos < 0) regionBeatPos.regionStartPos = 0;
+            if (regionBeatPos.RegionStartPos < 0) regionBeatPos.RegionStartPos = 0;
             
             // check if region is within other region
             for (var i = 0; i < numRegions; ++i)
             {
                 var r = Regions[i];
-                if (regionBeatPos.regionStartPos >= r.startPosBeats) {
-                    if (regionBeatPos.regionStartPos + regionBeatPos.numBeats <= r.startPosBeats + r.beats) {
-                        regionBeatPos.posIsValid = false;
+                if (regionBeatPos.RegionStartPos >= r.StartPosBeats) {
+                    if (regionBeatPos.RegionStartPos + regionBeatPos.NumBeats <= r.StartPosBeats + r.Beats) {
+                        regionBeatPos.PosIsValid = false;
                         //Debug.LogError("regionMarker within other region!");
                         exitChecks = true;
                         break;
@@ -169,19 +169,19 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             for (var i = 0; i < numRegions; ++i)
             {
                 var r = Regions[i];
-                if (regionBeatPos.regionStartPos >= r.startPosBeats) {
-                    if (regionBeatPos.regionStartPos <= r.startPosBeats + r.beats)
+                if (regionBeatPos.RegionStartPos >= r.StartPosBeats) {
+                    if (regionBeatPos.RegionStartPos <= r.StartPosBeats + r.Beats)
                     {
                         //Debug.LogWarning("overlap: "+regionBeatPos.regionStartPos+" :: "+r.startPosBeats+", "+(r.startPosBeats+r.beats));
                         
-                        regionBeatPos.regionStartPos = r.startPosBeats + r.beats;
+                        regionBeatPos.RegionStartPos = r.StartPosBeats + r.Beats;
 
                         // not the last region?
                         if (i < (numRegions - 1))
                         {
                             var rNext = Regions[i+1];
-                            if (regionBeatPos.regionStartPos + regionBeatPos.numBeats >= rNext.startPosBeats) {
-                                regionBeatPos.numBeats = rNext.startPosBeats - regionBeatPos.regionStartPos;
+                            if (regionBeatPos.RegionStartPos + regionBeatPos.NumBeats >= rNext.StartPosBeats) {
+                                regionBeatPos.NumBeats = rNext.StartPosBeats - regionBeatPos.RegionStartPos;
                             }
                         }
                         
@@ -197,15 +197,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             for (var i = 0; i < numRegions; ++i)
             {
                 var r = Regions[i];
-                if (regionBeatPos.regionStartPos + regionBeatPos.numBeats >= r.startPosBeats) {
-                    if (regionBeatPos.regionStartPos + regionBeatPos.numBeats <= r.startPosBeats + r.beats)
+                if (regionBeatPos.RegionStartPos + regionBeatPos.NumBeats >= r.StartPosBeats) {
+                    if (regionBeatPos.RegionStartPos + regionBeatPos.NumBeats <= r.StartPosBeats + r.Beats)
                     {
-                        regionBeatPos.regionStartPos = r.startPosBeats - regionBeatPos.numBeats;
-                        if (regionBeatPos.regionStartPos < 0) {
-                            regionBeatPos.regionStartPos = 0;
+                        regionBeatPos.RegionStartPos = r.StartPosBeats - regionBeatPos.NumBeats;
+                        if (regionBeatPos.RegionStartPos < 0) {
+                            regionBeatPos.RegionStartPos = 0;
                         }
 
-                        regionBeatPos.numBeats = r.startPosBeats - regionBeatPos.regionStartPos;
+                        regionBeatPos.NumBeats = r.StartPosBeats - regionBeatPos.RegionStartPos;
                         break;
                     }
                 }
@@ -223,10 +223,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
 
             foreach (var region in Regions) {
-                region.isPlaying = false;
+                region.IsPlaying = false;
             }
             
-            EndRegionBeat = Regions[^1].startPosBeats + Regions[^1].beats;
+            EndRegionBeat = Regions[^1].StartPosBeats + Regions[^1].Beats;
             
             donePlaying = false;
             curRegionIndex = 0;
@@ -237,18 +237,18 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (donePlaying) return;
             
             var region = Regions[curRegionIndex];
-            if (!region.isPlaying)
+            if (!region.IsPlaying)
             {
-                if (curDspTime >= startDspTime + region.regionStartTime)
+                if (curDspTime >= startDspTime + region.RegionStartTime)
                 {
                     StartRegionPlayback(startDspTime, curDspTime, numInstrumentsSoloed);
                 }
             }
             else
             {
-                if (curDspTime >= startDspTime + region.regionEndTime)
+                if (curDspTime >= startDspTime + region.RegionEndTime)
                 {
-                    if (region.playbackSettings.Type == (int)InstrumentType.Looper)
+                    if (region.PlaybackSettings.Type == (int)InstrumentType.Looper)
                     {
                         //Debug.Log("skip to end");
                         InstrumentController.SkipToEndBeat(curDspTime); // let loopers ring out
@@ -258,14 +258,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     if (donePlaying) return;
                     
                     region = Regions[curRegionIndex];
-                    if (curDspTime >= startDspTime + region.regionStartTime)
+                    if (curDspTime >= startDspTime + region.RegionStartTime)
                     {
                         StartRegionPlayback(startDspTime, curDspTime, numInstrumentsSoloed);
                     }
                 }
                 else
                 {
-                    if (region.playbackSettings.Type == (int)InstrumentType.Looper)
+                    if (region.PlaybackSettings.Type == (int)InstrumentType.Looper)
                     {
                         if (curDspTime >= InstrumentController.LoopDspTime)
                         {
@@ -275,7 +275,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     }
                     else
                     {
-                        InstrumentController.UpdatePlayback(curDspTime, region.playbackSettings, numInstrumentsSoloed);
+                        InstrumentController.UpdatePlayback(curDspTime, region.PlaybackSettings, numInstrumentsSoloed);
                     }       
                 }
             }
@@ -296,14 +296,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         private void StartRegionPlayback(double startDspTime, double curDspTime, int numInstrumentsSoloed)
         {
             var region = Regions[curRegionIndex];
-            region.isPlaying = true;
+            region.IsPlaying = true;
             
-            if (region.playbackSettings.Type == (int)InstrumentType.Looper)
+            if (region.PlaybackSettings.Type == (int)InstrumentType.Looper)
             {
                 InstrumentController.PlayIntervals(
-                    region.playbackSettings.Key,
-                    Intervals[region.playbackSettings.Interval],
-                    region.playbackSettings,
+                    region.PlaybackSettings.Key,
+                    Intervals[region.PlaybackSettings.Interval],
+                    region.PlaybackSettings,
                     numInstrumentsSoloed,
                     startDspTime, curDspTime);
 
@@ -311,7 +311,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
             else
             {
-                InstrumentController.StartPlayback(region.PianoRoll, region.playbackSettings,
+                InstrumentController.StartPlayback(region.PianoRoll, region.PlaybackSettings,
                     numInstrumentsSoloed,
                     startDspTime, curDspTime);
             }
@@ -327,7 +327,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             InstrumentController.StopAllSources();
             
             foreach (var region in Regions) {
-                region.isPlaying = false;
+                region.IsPlaying = false;
             }
         }
     }

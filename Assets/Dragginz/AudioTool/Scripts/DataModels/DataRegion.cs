@@ -19,5 +19,6 @@ namespace Dragginz.AudioTool.Scripts.DataModels
         public int pan;
 
         public DataArpeggiator dataArp;
+        public DataMelodyMaker dataMelody;
     }
 }

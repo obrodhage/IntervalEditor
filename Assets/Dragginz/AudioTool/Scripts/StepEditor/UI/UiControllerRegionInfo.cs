@@ -27,6 +27,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         [SerializeField] private TMP_Dropdown dropDownNotes;
         [SerializeField] private GameObject panelArpeggiator;
         
+        [SerializeField] private GameObject groupMelodyMaker;
+        [SerializeField] private TMP_Dropdown dropDownMelodyNotes;
+        [SerializeField] private GameObject panelMelodyMaker;
+        
         [SerializeField] private GameObject groupChord;
         [SerializeField] private TMP_Dropdown dropDownChordNotes;
         
@@ -65,12 +69,18 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         public delegate void ArpeggiatorUpdateEvent(ArpeggiatorData data);
         public event ArpeggiatorUpdateEvent OnArpeggiatorUpdateEvent;
         
+        public delegate void MelodyMakerUpdateEvent(MelodyMakerData data);
+        public event MelodyMakerUpdateEvent OnMelodyMakerUpdateEvent;
+
         public delegate void DropDownNoteEvent(int interval);
         public event DropDownNoteEvent OnDropDownNoteEvent;
     
         public delegate void DropDownChordNoteEvent(int interval);
         public event DropDownChordNoteEvent OnDropDownChordNoteEvent;
         
+        public delegate void DropDownMelodyNoteEvent(int interval);
+        public event DropDownMelodyNoteEvent OnDropDownMelodyNoteEvent;
+
         public delegate void ToggleHighOctaveEvent(bool value);
         public event ToggleHighOctaveEvent OnToggleHighOctaveEvent;
     
@@ -92,6 +102,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         //
 
         private UiControllerArpeggiator _uiControllerArpeggiator;
+        private UiControllerMelodyMaker _uiControllerMelodyMaker;
         
         private bool _uiIsUpdating;
         
@@ -108,6 +119,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             _uiControllerArpeggiator = FindObjectOfType<UiControllerArpeggiator>();
             if (_uiControllerArpeggiator == null) {
                 Debug.LogError("Couldn't find Component UiControllerArpeggiator!");
+            }
+            
+            _uiControllerMelodyMaker = FindObjectOfType<UiControllerMelodyMaker>();
+            if (_uiControllerMelodyMaker == null) {
+                Debug.LogError("Couldn't find Component UiControllerMelodyMaker!");
             }
         }
 
@@ -127,7 +143,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownTypes.onValueChanged.AddListener(delegate { OnDropDownTypeChanged(); });
             dropDownNotes.onValueChanged.AddListener(delegate { OnDropDownNoteChanged(); });
             dropDownChordNotes.onValueChanged.AddListener(delegate { OnDropDownChordNoteChanged(); });
-
+            dropDownMelodyNotes.onValueChanged.AddListener(delegate { OnDropDownMelodyNoteChanged(); });
+            
             toggleHighOctave.onValueChanged.AddListener(delegate { OnToggleHighOctaveChanged(toggleHighOctave.isOn); });
             toggleRootNoteOnly.onValueChanged.AddListener(delegate { OnToggleRootNoteOnlyChanged(toggleRootNoteOnly.isOn); });
         
@@ -142,6 +159,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             buttonDelete.onClick.AddListener(DeleteRegion);
 
             _uiControllerArpeggiator.OnDropDownArpeggiatorEvent += OnArpeggiatorDataChanged;
+            _uiControllerMelodyMaker.OnDropDownMelodyMakerEvent += OnMelodyMakerDataChanged;
         }
 
         public void PopulateLengthsDropDown()
@@ -200,17 +218,26 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             dropDownChordNotes.options = optionData;
         }
         
+        public void PopulateMelodyNotesDropDown(string[] keys)
+        {
+            var optionData = new List<TMP_Dropdown.OptionData>();
+            foreach (var key in keys) {
+                optionData.Add(new TMP_Dropdown.OptionData(key));
+            }
+            dropDownMelodyNotes.options = optionData;
+        }
+
         public void ShowRegionInfo(Region region)
         {
             _uiIsUpdating = true;
             
             goRegionPanel.SetActive(true);
 
-            var settings = region.playbackSettings;
+            var settings = region.PlaybackSettings;
 
             ShowRegionInfoHeader(region);
             
-            dropDownLength.value = region.beats - 1;
+            dropDownLength.value = region.Beats - 1;
             
             dropDownKeys.value = settings.Key;
             dropDownIntervals.value = settings.Interval;
@@ -223,16 +250,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
                 var s = Enum.GetName(typeof(InstrumentType), i);
                 optionData.Add(new TMP_Dropdown.OptionData(s));
             }
-            if (!region.playbackSettings.Instrument.canLoop) optionData.RemoveAt(optionData.Count-1);
+            if (!region.PlaybackSettings.Instrument.canLoop) optionData.RemoveAt(optionData.Count-1);
             dropDownTypes.options = optionData;
             dropDownTypes.value = settings.Type;
 
-            if (settings.Type == (int)InstrumentType.Arpeggiator) {
-                dropDownNotes.value = settings.Note;
-            }
-            if (settings.Type == (int)InstrumentType.Chord) dropDownChordNotes.value = settings.Note;
+            if (settings.Type == (int)InstrumentType.Arpeggiator) dropDownNotes.value = settings.Note;
+            else if (settings.Type == (int)InstrumentType.Chord) dropDownChordNotes.value = settings.Note;
+            else if (settings.Type == (int)InstrumentType.MelodyMaker) dropDownMelodyNotes.value = settings.Note;
             
-            UpdateGroupVisibility(region.playbackSettings);
+            UpdateGroupVisibility(region.PlaybackSettings);
             
             sliderVolume.value = settings.Volume;
             sliderPan.value = settings.Pan; //Mathf.InverseLerp(-1f, 1f, region.playbackSettings.Pan);
@@ -240,14 +266,15 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             toggleRootNoteOnly.isOn = settings.RootNoteOnly;
             toggleHighOctave.isOn = settings.HighOctave;
 
-            _uiControllerArpeggiator.ShowArpeggiatorData(region.playbackSettings.arpData);
+            _uiControllerArpeggiator.ShowArpeggiatorData(region.PlaybackSettings.ArpData);
+            _uiControllerMelodyMaker.ShowMelodyMakerData(region.PlaybackSettings.MelodyData);
             
             _uiIsUpdating = false;
         }
 
         public void ShowRegionInfoHeader(Region region)
         {
-            var header = "Track "+ (region.trackPos+1) + " - " + region.instrumentName + " - Beat " + region.startPosBeats + "-" + (region.startPosBeats + region.beats - 1);
+            var header = "Track "+ (region.TrackPos+1) + " - " + region.InstrumentName + " - Beat " + region.StartPosBeats + "-" + (region.StartPosBeats + region.Beats - 1);
             labelInstrument.text = header;
         }
         
@@ -256,9 +283,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             groupArpeggiator.SetActive(settings.Type == (int)InstrumentType.Arpeggiator);
             panelArpeggiator.SetActive(settings.Type == (int)InstrumentType.Arpeggiator);
             
+            groupMelodyMaker.SetActive(settings.Type == (int)InstrumentType.MelodyMaker);
+            panelMelodyMaker.SetActive(settings.Type == (int)InstrumentType.MelodyMaker);
+            
             groupChord.SetActive(settings.Type == (int)InstrumentType.Chord);
-            toggleRootNoteOnly.gameObject.SetActive(settings.Type != (int)InstrumentType.Arpeggiator);
-            toggleHighOctave.gameObject.SetActive(settings.Type != (int)InstrumentType.Arpeggiator);
+            
+            toggleRootNoteOnly.gameObject.SetActive(settings.Type != (int)InstrumentType.Arpeggiator && settings.Type != (int)InstrumentType.MelodyMaker);
+            toggleHighOctave.gameObject.SetActive(settings.Type != (int)InstrumentType.Arpeggiator && settings.Type != (int)InstrumentType.MelodyMaker);
         }
         
         // Ui events
@@ -296,16 +327,16 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
             if (!_uiIsUpdating) OnDropDownTypeEvent?.Invoke(dropDownTypes.value);
         }
         
-        //private void OnDropDownPatternChanged() {
-        //    if (!_uiIsUpdating) OnDropDownPatternEvent?.Invoke(dropDownPatterns.value);
-        //}
-        
         private void OnDropDownNoteChanged() {
             if (!_uiIsUpdating) OnDropDownNoteEvent?.Invoke(dropDownNotes.value);
         }
-
+        
         private void OnDropDownChordNoteChanged() {
             if (!_uiIsUpdating) OnDropDownChordNoteEvent?.Invoke(dropDownChordNotes.value);
+        }
+        
+        private void OnDropDownMelodyNoteChanged() {
+            if (!_uiIsUpdating) OnDropDownMelodyNoteEvent?.Invoke(dropDownMelodyNotes.value);
         }
         
         private void OnToggleHighOctaveChanged(bool value) {
@@ -328,6 +359,10 @@ namespace Dragginz.AudioTool.Scripts.StepEditor.UI
         
         private void OnArpeggiatorDataChanged(ArpeggiatorData data) {
             if (!_uiIsUpdating) OnArpeggiatorUpdateEvent?.Invoke(data);
+        }
+        
+        private void OnMelodyMakerDataChanged(MelodyMakerData data) {
+            if (!_uiIsUpdating) OnMelodyMakerUpdateEvent?.Invoke(data);
         }
         
         private void OnButtonRegionSizeClicked(Globals.RegionSizeControls action) {

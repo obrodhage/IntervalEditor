@@ -25,8 +25,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         [SerializeField] private AudioSource audioError;
         
         private UiControllerEditor _uiControllerEditor;
-        private UiControllerTrackInfo uiControllerTrackInfo;
-        private UiControllerRegionInfo uiControllerRegionInfo;
+        private UiControllerTrackInfo _uiControllerTrackInfo;
+        private UiControllerRegionInfo _uiControllerRegionInfo;
 
         private AudioEngine _audioEngine;
 
@@ -54,13 +54,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 Debug.LogError("Couldn't find Component UiControllerEditor!");
             }
             
-            uiControllerTrackInfo = FindObjectOfType<UiControllerTrackInfo>();
-            if (uiControllerTrackInfo == null) {
+            _uiControllerTrackInfo = FindObjectOfType<UiControllerTrackInfo>();
+            if (_uiControllerTrackInfo == null) {
                 Debug.LogError("Couldn't find Component UiControllerTrackInfo!");
             }
             
-            uiControllerRegionInfo = FindObjectOfType<UiControllerRegionInfo>();
-            if (uiControllerRegionInfo == null) {
+            _uiControllerRegionInfo = FindObjectOfType<UiControllerRegionInfo>();
+            if (_uiControllerRegionInfo == null) {
                 Debug.LogError("Couldn't find Component UiControllerRegionInfo!");
             }
             
@@ -82,13 +82,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             _uiControllerEditor.PopulateInstrumentsDropDown(_listInstrumentObjects);
             
-            uiControllerTrackInfo.PopulateInstrumentsDropDown(_listInstrumentObjects);
+            _uiControllerTrackInfo.PopulateInstrumentsDropDown(_listInstrumentObjects);
 
-            uiControllerRegionInfo.PopulateLengthsDropDown();
-            uiControllerRegionInfo.PopulateKeysDropDown(Globals.Keys);
-            uiControllerRegionInfo.PopulateIntervalsDropDown(_listChordObjects);
-            uiControllerRegionInfo.PopulateArpeggiatorNotesDropDown(Globals.ArpeggiatorNotes);
-            uiControllerRegionInfo.PopulateChordNotesDropDown(Globals.ChordNotes);
+            _uiControllerRegionInfo.PopulateLengthsDropDown();
+            _uiControllerRegionInfo.PopulateKeysDropDown(Globals.Keys);
+            _uiControllerRegionInfo.PopulateIntervalsDropDown(_listChordObjects);
+            _uiControllerRegionInfo.PopulateArpeggiatorNotesDropDown(Globals.ArpeggiatorNotes);
+            _uiControllerRegionInfo.PopulateChordNotesDropDown(Globals.ChordNotes);
+            _uiControllerRegionInfo.PopulateMelodyNotesDropDown(Globals.MelodyNotes);
             
             CreateBarHeaders();
             
@@ -96,8 +97,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _audioEngine.InitInstrumentList(_listInstrumentObjects);
             
             _uiControllerEditor.Init();
-            uiControllerTrackInfo.Init();
-            uiControllerRegionInfo.Init();
+            _uiControllerTrackInfo.Init();
+            _uiControllerRegionInfo.Init();
             
             _uiControllerEditor.OnButtonDemoEvent += OnButtonDemoClick;
             _uiControllerEditor.OnButtonClearEvent += OnButtonClearClick;
@@ -110,27 +111,29 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             _uiControllerEditor.OnButtonLoopEvent += OnButtonLoopClick;
             _uiControllerEditor.OnActionAddRegionEvent += OnActionAddRegion;
             
-            uiControllerTrackInfo.OnDropDownInstrumentEvent += TrackInfoInstrumentChange;
-            uiControllerTrackInfo.OnDropDownReverbFilterEvent += TrackInfoReverbFilterChange;
-            uiControllerTrackInfo.OnButtonMoveUpEvent += TrackMoveUpEvent;
-            uiControllerTrackInfo.OnButtonMoveDownEvent += TrackMoveDownEvent;
-            uiControllerTrackInfo.OnButtonDeleteEvent += TrackInfoDeleteEvent;
+            _uiControllerTrackInfo.OnDropDownInstrumentEvent += TrackInfoInstrumentChange;
+            _uiControllerTrackInfo.OnDropDownReverbFilterEvent += TrackInfoReverbFilterChange;
+            _uiControllerTrackInfo.OnButtonMoveUpEvent += TrackMoveUpEvent;
+            _uiControllerTrackInfo.OnButtonMoveDownEvent += TrackMoveDownEvent;
+            _uiControllerTrackInfo.OnButtonDeleteEvent += TrackInfoDeleteEvent;
             
-            uiControllerRegionInfo.OnDropDownLengthEvent += RegionInfoLengthChange;
-            uiControllerRegionInfo.OnDropDownKeyEvent += RegionInfoKeyChange;
-            uiControllerRegionInfo.OnDropDownIntervalEvent += RegionInfoIntervalChange;
-            uiControllerRegionInfo.OnDropDownOctaveEvent += RegionInfoOctaveChange;
-            uiControllerRegionInfo.OnDropDownTypeEvent += RegionInfoTypeChange;
-            uiControllerRegionInfo.OnDropDownNoteEvent += RegionInfoNoteChange;
-            uiControllerRegionInfo.OnDropDownChordNoteEvent += RegionInfoChordNoteChange;
-            uiControllerRegionInfo.OnArpeggiatorUpdateEvent += RegionInfoArpeggiatorUpdateChange;
-            uiControllerRegionInfo.OnButtonRegionSizeEvent += OnRegionSizeChange;
+            _uiControllerRegionInfo.OnDropDownLengthEvent += RegionInfoLengthChange;
+            _uiControllerRegionInfo.OnDropDownKeyEvent += RegionInfoKeyChange;
+            _uiControllerRegionInfo.OnDropDownIntervalEvent += RegionInfoIntervalChange;
+            _uiControllerRegionInfo.OnDropDownOctaveEvent += RegionInfoOctaveChange;
+            _uiControllerRegionInfo.OnDropDownTypeEvent += RegionInfoTypeChange;
+            _uiControllerRegionInfo.OnDropDownNoteEvent += RegionInfoNoteChange;
+            _uiControllerRegionInfo.OnDropDownChordNoteEvent += RegionInfoChordNoteChange;
+            _uiControllerRegionInfo.OnDropDownMelodyNoteEvent += RegionInfoMelodyNoteChange;
+            _uiControllerRegionInfo.OnArpeggiatorUpdateEvent += RegionInfoArpeggiatorUpdate;
+            _uiControllerRegionInfo.OnMelodyMakerUpdateEvent += RegionInfoMelodyMakerUpdate;
+            _uiControllerRegionInfo.OnButtonRegionSizeEvent += OnRegionSizeChange;
             
-            uiControllerRegionInfo.OnSliderVolumeEvent += RegionInfoVolumeChange;
-            uiControllerRegionInfo.OnSliderPanEvent += RegionInfoPanChange;
-            uiControllerRegionInfo.OnToggleRootNoteOnlyEvent += RegionInfoRootNoteOnlyChange;
-            uiControllerRegionInfo.OnToggleHighOctaveEvent += RegionInfoHighOctaveChange;
-            uiControllerRegionInfo.OnButtonDeleteEvent += RegionInfoDeleteEvent;
+            _uiControllerRegionInfo.OnSliderVolumeEvent += RegionInfoVolumeChange;
+            _uiControllerRegionInfo.OnSliderPanEvent += RegionInfoPanChange;
+            _uiControllerRegionInfo.OnToggleRootNoteOnlyEvent += RegionInfoRootNoteOnlyChange;
+            _uiControllerRegionInfo.OnToggleHighOctaveEvent += RegionInfoHighOctaveChange;
+            _uiControllerRegionInfo.OnButtonDeleteEvent += RegionInfoDeleteEvent;
         }
 
         private void Update()
@@ -145,8 +148,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (uiControllerTrackInfo.IsVisible) uiControllerTrackInfo.Hide();
-                if (uiControllerRegionInfo.IsVisible) uiControllerRegionInfo.Hide();
+                if (_uiControllerTrackInfo.IsVisible) _uiControllerTrackInfo.Hide();
+                if (_uiControllerRegionInfo.IsVisible) _uiControllerRegionInfo.Hide();
             }
             else if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -155,7 +158,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 _uiControllerEditor.AudioIsPlaying(playing);
             }
 
-            if (uiControllerTrackInfo.IsVisible || uiControllerRegionInfo.IsVisible)
+            if (_uiControllerTrackInfo.IsVisible || _uiControllerRegionInfo.IsVisible)
             {
                 if (regionMarker.gameObject.activeSelf) regionMarker.gameObject.SetActive(false);
                 return;
@@ -195,9 +198,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             _mouseRegionBeatPos = _uiControllerEditor.GetRegionBeatPos();
 
-            if (_mouseRegionBeatPos.trackPos < 0) _mouseRegionBeatPos.trackPos = 0;
+            if (_mouseRegionBeatPos.TrackPos < 0) _mouseRegionBeatPos.TrackPos = 0;
             
-            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.trackPos);
+            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.TrackPos);
             if (track == null) {
                 regionMarker.gameObject.SetActive(false);
                 return;
@@ -205,20 +208,20 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 
             _mouseRegionBeatPos = _audioEngine.ValidateRegionPosAndSize(track, _mouseRegionBeatPos);
 
-            if (!_mouseRegionBeatPos.posIsValid) {
+            if (!_mouseRegionBeatPos.PosIsValid) {
                 regionMarker.gameObject.SetActive(false);
                 return;
             }
                 
             var size = new Vector2Int {
-                x = Globals.PrefabBarBeatWidth * _mouseRegionBeatPos.numBeats,
+                x = Globals.PrefabBarBeatWidth * _mouseRegionBeatPos.NumBeats,
                 y = Globals.PrefabTrackHeight
             };
             regionMarker.sizeDelta = size;
                 
             var pos = new Vector2Int {
-                x = _mouseRegionBeatPos.regionStartPos * Globals.PrefabBarBeatWidth,
-                y = _mouseRegionBeatPos.trackPos * Globals.PrefabTrackHeight * -1
+                x = _mouseRegionBeatPos.RegionStartPos * Globals.PrefabBarBeatWidth,
+                y = _mouseRegionBeatPos.TrackPos * Globals.PrefabTrackHeight * -1
             };
             regionMarker.anchoredPosition = pos;
                 
@@ -287,14 +290,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     
             region.SetListener(uiRegion, CallbackRegionClick);
                     
-            var key = Globals.Keys[region.playbackSettings.Key];
-            var chord = _listChordObjects[region.playbackSettings.Interval].name;
+            var key = Globals.Keys[region.PlaybackSettings.Key];
+            var chord = _listChordObjects[region.PlaybackSettings.Interval].name;
             
             var prefabBarWidth = Globals.PrefabBarWidth / 4;
-            var w = prefabBarWidth * region.beats;
+            var w = prefabBarWidth * region.Beats;
             uiRegion.Init(w, instrument.defaultColor, key, chord);
             
-            pos.x = prefabBarWidth * region.startPosBeats;
+            pos.x = prefabBarWidth * region.StartPosBeats;
             pos.y = track.Position * Globals.PrefabTrackHeight * -1;
             uiRegion.rectTransform.anchoredPosition = pos;
         }
@@ -307,13 +310,13 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             var pos = uiRegion.rectTransform.anchoredPosition;
             
             var prefabBarWidth = Globals.PrefabBarWidth / 4;
-            var w = prefabBarWidth * regionUpdate.beats;
+            var w = prefabBarWidth * regionUpdate.Beats;
             
             var size = uiRegion.rectTransform.sizeDelta;
             size.x = w;
             uiRegion.rectTransform.sizeDelta = size;
 
-            pos.x = prefabBarWidth * regionUpdate.startPosBeats;
+            pos.x = prefabBarWidth * regionUpdate.StartPosBeats;
             uiRegion.rectTransform.anchoredPosition = pos;
         }
         
@@ -333,11 +336,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
         private void OnActionAddRegion()
         {
-            if (!_mouseRegionBeatPos.posIsValid) return;
+            if (!_mouseRegionBeatPos.PosIsValid) return;
             
             //Debug.Log("trackPos, regionPos: "+trackPos+", "+regionPos);
             //_audioEngine.AddRegion(trackPos, regionPos);
-            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.trackPos);
+            var track = _audioEngine.GetTrack(_mouseRegionBeatPos.TrackPos);
             if (track == null) return;
             
             _curRegionEdit = _audioEngine.CreateNewRegion(track, _mouseRegionBeatPos);
@@ -347,7 +350,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 ShowMessage("");
                 
                 CreateRegionGameObject(track, _curRegionEdit, track.Instrument);
-                uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
+                _uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
             }
         }
         
@@ -392,7 +395,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             if (_audioEngine.MoveTrack(_curTrackEdit.Position, -1))
             {
-                uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
+                _uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
             }
             else
             {
@@ -405,7 +408,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             if (_audioEngine.MoveTrack(_curTrackEdit.Position, 1))
             {
-                uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
+                _uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit); // refresh
             }
             else
             {
@@ -427,14 +430,14 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             if (_curRegionEdit == null) return;
             
             _audioEngine.UpdateRegionLength(_curRegionEdit, length+1);
-            uiControllerRegionInfo.ShowRegionInfoHeader(_curRegionEdit); // refresh
+            _uiControllerRegionInfo.ShowRegionInfoHeader(_curRegionEdit); // refresh
         }
 
         private void RegionInfoKeyChange(int key)
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Key = key;
+            _curRegionEdit.PlaybackSettings.Key = key;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
@@ -442,7 +445,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Interval = interval;
+            _curRegionEdit.PlaybackSettings.Interval = interval;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
@@ -450,7 +453,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Octave = octave;
+            _curRegionEdit.PlaybackSettings.Octave = octave;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
@@ -458,23 +461,30 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Type = type;
+            _curRegionEdit.PlaybackSettings.Type = type;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
-            uiControllerRegionInfo.UpdateGroupVisibility(_curRegionEdit.playbackSettings);
+            _uiControllerRegionInfo.UpdateGroupVisibility(_curRegionEdit.PlaybackSettings);
         }
 
-        private void RegionInfoArpeggiatorUpdateChange(ArpeggiatorData data)
+        private void RegionInfoArpeggiatorUpdate(ArpeggiatorData data)
         {
             if (_curRegionEdit == null) return;
             
             _audioEngine.UpdateRegionArpeggiatorData(_curRegionEdit, data);
         }
         
+        private void RegionInfoMelodyMakerUpdate(MelodyMakerData data)
+        {
+            if (_curRegionEdit == null) return;
+            
+            _audioEngine.UpdateRegionMelodyMakerData(_curRegionEdit, data);
+        }
+        
         private void RegionInfoNoteChange(int note)
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Note = note;
+            _curRegionEdit.PlaybackSettings.Note = note;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
@@ -482,16 +492,24 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Note = note;
+            _curRegionEdit.PlaybackSettings.Note = note;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
+        private void RegionInfoMelodyNoteChange(int note)
+        {
+            if (_curRegionEdit == null) return;
+            
+            _curRegionEdit.PlaybackSettings.Note = note;
+            _audioEngine.UpdateRegionNew(_curRegionEdit);
+        }
+
         private void RegionInfoVolumeChange(float value)
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Volume = value;
-            if (_curRegionEdit.isPlaying) {
+            _curRegionEdit.PlaybackSettings.Volume = value;
+            if (_curRegionEdit.IsPlaying) {
                 _audioEngine.SetLiveVolume(_curRegionEdit);
             }
         }
@@ -500,8 +518,8 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.Pan = value;
-            if (_curRegionEdit.isPlaying) {
+            _curRegionEdit.PlaybackSettings.Pan = value;
+            if (_curRegionEdit.IsPlaying) {
                 _audioEngine.SetLivePan(_curRegionEdit);
             }
         }
@@ -510,7 +528,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.RootNoteOnly = value;
+            _curRegionEdit.PlaybackSettings.RootNoteOnly = value;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
         
@@ -518,7 +536,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             if (_curRegionEdit == null) return;
             
-            _curRegionEdit.playbackSettings.HighOctave = value;
+            _curRegionEdit.PlaybackSettings.HighOctave = value;
             _audioEngine.UpdateRegionNew(_curRegionEdit);
         }
 
@@ -622,7 +640,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             switch (clickAction)
             {
                 case Globals.TrackInfo:
-                    uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit);
+                    _uiControllerTrackInfo.ShowTrackInfo(_curTrackEdit);
                     break;
                 case Globals.TrackDelete:
                     _audioEngine.DeleteTrack(_curTrackEdit);
@@ -637,7 +655,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             ShowMessage("");
             
             _curRegionEdit = _audioEngine.GetRegion(trackPos, regionStartPos);
-            if (_curRegionEdit != null) uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
+            if (_curRegionEdit != null) _uiControllerRegionInfo.ShowRegionInfo(_curRegionEdit);
         }
 
         // 

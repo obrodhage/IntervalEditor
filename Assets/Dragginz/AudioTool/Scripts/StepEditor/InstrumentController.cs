@@ -151,7 +151,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             for (var i = 0; i < _numSingleNotes; ++i) {
                 if (_singleNotes[i].IsAudible) {
-                    _singleNotes[i].AudioSource.volume = updateRegion.playbackSettings.Volume;
+                    _singleNotes[i].AudioSource.volume = updateRegion.PlaybackSettings.Volume;
                 }
             }
         }
@@ -162,7 +162,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             for (var i = 0; i < _numSingleNotes; ++i) {
                 if (_singleNotes[i].IsAudible) {
-                    _singleNotes[i].AudioSource.panStereo = Mathf.Lerp(-1f, 1f, updateRegion.playbackSettings.Pan);
+                    _singleNotes[i].AudioSource.panStereo = Mathf.Lerp(-1f, 1f, updateRegion.PlaybackSettings.Pan);
                 }
             }
         }

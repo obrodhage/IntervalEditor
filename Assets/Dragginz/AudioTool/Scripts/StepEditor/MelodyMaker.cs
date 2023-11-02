@@ -3,33 +3,36 @@ using static Dragginz.AudioTool.Scripts.Includes.Globals;
 
 namespace Dragginz.AudioTool.Scripts.StepEditor
 {
-    public enum ArpOctaves
+    public enum MelodyOctaves
     {
         One,
         Two,
         Three
     }
 
-    public enum ArpStart
+    public enum MelodyMode
     {
-        Beginning,
-        End
+        Ionian,
+        Dorian,
+        Phrygian,
+        Lydian,
+        Mixolydian,
+        Aeolian,
+        Locrian
     }
     
-    public enum ArpEnd
+    /*public enum ArpEnd
     {
         Reverse,
         Reset
-    }
+    }*/
     
-    public enum ArpType
+    public enum MelodyType
     {
-        SimpleArpeggio,
-        ThreeNoteSteps,
-        RootClimb
+        MajorScale
     }
     
-    public struct ArpeggiatorData
+    public struct MelodyMakerData
     {
         public List<int> ListPattern;
         
@@ -38,21 +41,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         public float EndTime;
         
         public int Octaves;
-        public int Start;
+        public int Mode;
         public int End;
         public int Type;
     }
 
-    public static class Arpeggiator 
+    public static class MelodyMaker 
     {
-        public static List<PianoRoll> CreateArpSimple(ArpeggiatorData data)
+        public static List<PianoRoll> CreateMajorScale(MelodyMakerData data)
         {
             var pianoRoll = new List<PianoRoll>();
 
             var curPosTime = data.StartTime;
             var numPatternNotes = data.ListPattern.Count;
 
-            var patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+            var patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
             var patternDirection = patternIndex == 0 ? 1 : -1;
             
             //var sPattern = "";
@@ -78,7 +81,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 if (patternIndex < 0)
                 {
                     if (data.End == (int)ArpEnd.Reset) {
-                        patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                        patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
                     }
                     else if (data.End == (int)ArpEnd.Reverse) {
                         patternIndex = 1;
@@ -88,7 +91,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 else if (patternIndex >= numPatternNotes)
                 {
                     if (data.End == (int)ArpEnd.Reset) {
-                        patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                        patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
                     }
                     else if (data.End == (int)ArpEnd.Reverse) {
                         patternIndex = numPatternNotes - 2;
