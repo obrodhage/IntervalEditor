@@ -7,6 +7,7 @@ namespace Dragginz.AudioTool.Scripts.DataModels
     {
         public int octaves;
         public int mode;
+        public int start;
         public int end;
         public int type;
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Dragginz.AudioTool.Scripts.DataModels;
 using UnityEngine;
@@ -130,6 +131,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                         {
                             octaves = r.PlaybackSettings.MelodyData.Octaves,
                             mode = r.PlaybackSettings.MelodyData.Mode,
+                            start = r.PlaybackSettings.MelodyData.Start,
                             end = r.PlaybackSettings.MelodyData.End,
                             type = r.PlaybackSettings.MelodyData.Type
                         }
@@ -260,6 +262,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     
                     var key = Globals.Keys[r.PlaybackSettings.Key];
                     var chord = _listChords[r.PlaybackSettings.Interval].name;
+                    if (r.PlaybackSettings.Type == (int) InstrumentType.MelodyMaker) {
+                        chord = Enum.GetName(typeof(MelodyMode), r.PlaybackSettings.MelodyData.Mode);
+                    }
                     r.RegionUi.UpdateValues(key, chord);
                     
                     if (instrument.type != InstrumentType.Looper) {
@@ -319,6 +324,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             var key = Globals.Keys[updateRegion.PlaybackSettings.Key];
             var chord = _listChords[updateRegion.PlaybackSettings.Interval].name;
+            if (updateRegion.PlaybackSettings.Type == (int) InstrumentType.MelodyMaker) {
+                chord = Enum.GetName(typeof(MelodyMode), updateRegion.PlaybackSettings.MelodyData.Mode);
+            }
             updateRegion.RegionUi.UpdateValues(key, chord);
             updateRegion.CreatePianoRoll(_intervals);
         }
@@ -380,6 +388,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             updateRegion.PlaybackSettings.MelodyData.Octaves = data.Octaves;
             updateRegion.PlaybackSettings.MelodyData.Mode = data.Mode;
+            updateRegion.PlaybackSettings.MelodyData.Start = data.Start;
             updateRegion.PlaybackSettings.MelodyData.End = data.End;
             updateRegion.PlaybackSettings.MelodyData.Type = data.Type;
                 

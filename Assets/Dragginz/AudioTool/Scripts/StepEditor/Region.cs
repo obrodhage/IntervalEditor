@@ -62,6 +62,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         {
             PlaybackSettings.MelodyData.Octaves = dataMelody.octaves;
             PlaybackSettings.MelodyData.Mode = dataMelody.mode;
+            PlaybackSettings.MelodyData.Start = dataMelody.start;
             PlaybackSettings.MelodyData.End = dataMelody.end;
             PlaybackSettings.MelodyData.Type = dataMelody.type;
         }
@@ -182,7 +183,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             }
             var s = "";
             foreach (var note in listPattern) s += note + ", ";
-            Debug.Log("CreateArpPianoRoll: "+s);
+            //Debug.Log("CreateArpPianoRoll: "+s);
             
             PlaybackSettings.ArpData.ListPattern = listPattern;
             
@@ -213,7 +214,7 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             var intervalStartIndex = (PlaybackSettings.Octave * 12) + PlaybackSettings.Key;
 
-            var listIntervals = MajorScale;
+            var listIntervals = ModeIntervals[PlaybackSettings.MelodyData.Mode];
             var numIntervals = listIntervals.Length;
 
             // create list of all interval notes
@@ -221,9 +222,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             var numOctaves = PlaybackSettings.MelodyData.Octaves + 1;
             for (var octave = 0; octave < numOctaves; ++octave)
             {
+                var modeInterval = 0;
                 for (var i = 0; i < numIntervals; ++i)
                 {
-                    var index = intervalStartIndex + (octave * 12) + listIntervals[i];
+                    modeInterval += listIntervals[i];
+                    var index = intervalStartIndex + (octave * 12) + modeInterval;//listIntervals[i];
                     
                     if (i == 0 && octave > 0) {
                         if (index == listPattern[^1]) continue; // avoid double notes when octave changes
@@ -232,17 +235,17 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     listPattern.Add(index);
                 }
             }
-            var s = "";
-            foreach (var note in listPattern) s += note + ", ";
-            Debug.Log("CreateMelodyPianoRoll: "+s);
+            //var s = "";
+            //foreach (var note in listPattern) s += note + ", ";
+            //Debug.Log("CreateMelodyPianoRoll: "+s);
             
             PlaybackSettings.MelodyData.ListPattern = listPattern;
             
-            //Debug.Log("Track "+trackPos+", region "+startPosBeats+$" -> arpeggiator pattern: {string.Join(",", listPattern.ToArray())}");
-
             return PlaybackSettings.MelodyData.Type switch
             {
-                (int)MelodyType.MajorScale => MelodyMaker.CreateMajorScale(PlaybackSettings.MelodyData),
+                (int)MelodyType.SimpleScale => MelodyMaker.CreateSimpleScale(PlaybackSettings.MelodyData),
+                (int)MelodyType.ThreeNoteSteps => MelodyMaker.CreateThreeNoteSteps(PlaybackSettings.MelodyData),
+                (int)MelodyType.RootClimb => MelodyMaker.CreateRootClimb(PlaybackSettings.MelodyData),
                 _ => pianoRoll
             };
         }

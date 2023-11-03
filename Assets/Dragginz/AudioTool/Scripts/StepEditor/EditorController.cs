@@ -292,6 +292,9 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     
             var key = Globals.Keys[region.PlaybackSettings.Key];
             var chord = _listChordObjects[region.PlaybackSettings.Interval].name;
+            if (region.PlaybackSettings.Type == (int) InstrumentType.MelodyMaker) {
+                chord = Enum.GetName(typeof(MelodyMode), region.PlaybackSettings.MelodyData.Mode);
+            }
             
             var prefabBarWidth = Globals.PrefabBarWidth / 4;
             var w = prefabBarWidth * region.Beats;

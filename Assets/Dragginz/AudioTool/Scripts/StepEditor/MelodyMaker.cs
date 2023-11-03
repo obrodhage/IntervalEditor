@@ -21,15 +21,23 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         Locrian
     }
     
-    /*public enum ArpEnd
+    public enum MelodyStart
+    {
+        Beginning,
+        End
+    }
+    
+    public enum MelodyEnd
     {
         Reverse,
         Reset
-    }*/
+    }
     
     public enum MelodyType
     {
-        MajorScale
+        SimpleScale,
+        ThreeNoteSteps,
+        RootClimb
     }
     
     public struct MelodyMakerData
@@ -42,20 +50,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
         
         public int Octaves;
         public int Mode;
+        public int Start;
         public int End;
         public int Type;
     }
 
     public static class MelodyMaker 
     {
-        public static List<PianoRoll> CreateMajorScale(MelodyMakerData data)
+        public static List<PianoRoll> CreateSimpleScale(MelodyMakerData data)
         {
             var pianoRoll = new List<PianoRoll>();
 
             var curPosTime = data.StartTime;
             var numPatternNotes = data.ListPattern.Count;
 
-            var patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+            var patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
             var patternDirection = patternIndex == 0 ? 1 : -1;
             
             //var sPattern = "";
@@ -71,8 +80,6 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     Notes = new List<OneNote> {n}
                 };
                 pianoRoll.Add(p);
-
-                //sPattern += patternIndex + ",";
                 
                 curPosTime += data.NoteInterval;
                 if (curPosTime >= data.EndTime) break;
@@ -80,21 +87,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                 patternIndex += patternDirection;
                 if (patternIndex < 0)
                 {
-                    if (data.End == (int)ArpEnd.Reset) {
-                        patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                    if (data.End == (int)MelodyEnd.Reset) {
+                        patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
                     }
-                    else if (data.End == (int)ArpEnd.Reverse) {
-                        patternIndex = 1;
+                    else if (data.End == (int)MelodyEnd.Reverse) {
+                        patternIndex = 0;
                         patternDirection *= -1;
                     }
                 }
                 else if (patternIndex >= numPatternNotes)
                 {
-                    if (data.End == (int)ArpEnd.Reset) {
-                        patternIndex = data.Mode == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                    if (data.End == (int)MelodyEnd.Reset) {
+                        patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
                     }
-                    else if (data.End == (int)ArpEnd.Reverse) {
-                        patternIndex = numPatternNotes - 2;
+                    else if (data.End == (int)MelodyEnd.Reverse) {
+                        patternIndex = numPatternNotes - 1;
                         patternDirection *= -1;
                     }
                 }
@@ -102,21 +109,21 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             
             //var s = "";
             //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
-            //Debug.Log("simple arp: "+s);
+            //Debug.Log("major scale: "+s);
             
-            //Debug.Log("simple arp: "+sPattern);
+            //Debug.Log("major scale: "+sPattern);
             
             return pianoRoll;
         }
         
-        public static List<PianoRoll> CreateArpThreeNoteSteps(ArpeggiatorData data)
+        public static List<PianoRoll> CreateThreeNoteSteps(MelodyMakerData data)
         {
             var pianoRoll = new List<PianoRoll>();
 
             var curPosTime = data.StartTime;
             var numPatternNotes = data.ListPattern.Count;
 
-            var patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+            var patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
             var patternDirection = patternIndex == 0 ? 1 : -1;
             var noteCount = 0;
             
@@ -142,11 +149,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     {
                         if (patternIndex == 0)
                         {
-                            if (data.End == (int)ArpEnd.Reset) {
+                            if (data.End == (int)MelodyEnd.Reset) {
                                 noteCount = 0;
-                                patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                                patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
                             }
-                            else if (data.End == (int)ArpEnd.Reverse) {
+                            else if (data.End == (int)MelodyEnd.Reverse) {
                                 noteCount = 0;
                                 patternIndex = 0;
                                 patternDirection *= -1;
@@ -162,11 +169,11 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     {
                         if (patternIndex == (numPatternNotes - 1))
                         {
-                            if (data.End == (int)ArpEnd.Reset) {
+                            if (data.End == (int)MelodyEnd.Reset) {
                                 noteCount = 0;
-                                patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+                                patternIndex = data.Start == (int)MelodyStart.Beginning ? 0 : numPatternNotes - 1;
                             }
-                            else if (data.End == (int)ArpEnd.Reverse) {
+                            else if (data.End == (int)MelodyEnd.Reverse) {
                                 noteCount = 0;
                                 patternIndex = numPatternNotes - 1;
                                 patternDirection *= -1;
@@ -187,19 +194,19 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
             //var s = "";
             //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
-            //Debug.Log("three note step arp: "+s);
+            //Debug.Log("three note step melody: "+s);
             
             return pianoRoll;
         }
-        
-        public static List<PianoRoll> CreateArpRootClimb(ArpeggiatorData data)
+
+        public static List<PianoRoll> CreateRootClimb(MelodyMakerData data)
         {
             var pianoRoll = new List<PianoRoll>();
 
             var curPosTime = data.StartTime;
             var numPatternNotes = data.ListPattern.Count;
 
-            var patternIndex = data.Start == (int)ArpStart.Beginning ? 0 : numPatternNotes - 1;
+            var patternIndex = data.Start == (int) MelodyStart.Beginning ? 0 : numPatternNotes - 1;
             var patternDirection = patternIndex == 0 ? 1 : -1;
 
 
@@ -208,10 +215,12 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
             // play pattern until region has reached end
             while (curPosTime < data.EndTime)
             {
-                var n = new OneNote {
+                var n = new OneNote
+                {
                     Index = data.ListPattern[patternIndex]
                 };
-                var p = new PianoRoll {
+                var p = new PianoRoll
+                {
                     PosTime = curPosTime,
                     Notes = new List<OneNote> {n}
                 };
@@ -219,22 +228,24 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
 
                 curPosTime += data.NoteInterval;
                 if (curPosTime >= data.EndTime) break;
-                
-                n = new OneNote {
+
+                n = new OneNote
+                {
                     Index = data.ListPattern[patternIndex2]
                 };
-                p = new PianoRoll {
+                p = new PianoRoll
+                {
                     PosTime = curPosTime,
                     Notes = new List<OneNote> {n}
                 };
                 pianoRoll.Add(p);
-                
+
                 curPosTime += data.NoteInterval;
                 if (curPosTime >= data.EndTime) break;
-                
+
                 patternIndex2 += patternDirection;
 
-                if (data.Start == (int) ArpStart.Beginning)
+                if (data.Start == (int) MelodyStart.Beginning)
                 {
                     if (patternIndex2 == patternIndex)
                     {
@@ -243,18 +254,19 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     }
                     else if (patternIndex2 >= numPatternNotes)
                     {
-                        if (data.End == (int)ArpEnd.Reset)
+                        if (data.End == (int) MelodyEnd.Reset)
                         {
                             patternIndex2 = patternIndex + 1;
                             patternDirection = 1;
                         }
-                        else if (data.End == (int)ArpEnd.Reverse) {
+                        else if (data.End == (int) MelodyEnd.Reverse)
+                        {
                             patternIndex2 = numPatternNotes - 2;
                             patternDirection = -1;
                         }
-                    } 
+                    }
                 }
-                else if (data.Start == (int) ArpStart.End)
+                else if (data.Start == (int) MelodyStart.End)
                 {
                     if (patternIndex2 == patternIndex)
                     {
@@ -263,22 +275,23 @@ namespace Dragginz.AudioTool.Scripts.StepEditor
                     }
                     else if (patternIndex2 < 0)
                     {
-                        if (data.End == (int)ArpEnd.Reset)
+                        if (data.End == (int) MelodyEnd.Reset)
                         {
                             patternIndex2 = patternIndex - 1;
                             patternDirection = -1;
                         }
-                        else if (data.End == (int)ArpEnd.Reverse) {
+                        else if (data.End == (int) MelodyEnd.Reverse)
+                        {
                             patternIndex2 = 1;
                             patternDirection = 1;
                         }
-                    } 
+                    }
                 }
             }
-
+            
             //var s = "";
             //foreach (var note in pianoRoll) s += note.Notes[0].Index + ", ";
-            //Debug.Log("three note step arp: "+s);
+            //Debug.Log("root climb melody: "+s);
             
             return pianoRoll;
         }
